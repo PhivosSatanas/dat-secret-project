@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="94">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>include/IntStack.h</itemPath>
+      <itemPath>include/SymbolStack.h</itemPath>
+      <itemPath>include/SymbolTable.h</itemPath>
+      <itemPath>include/expressions.h</itemPath>
+      <itemPath>include/handler.h</itemPath>
+      <itemPath>include/manage.h</itemPath>
+      <itemPath>include/offsets.h</itemPath>
+      <itemPath>include/parser.h</itemPath>
+      <itemPath>include/quads.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+      <itemPath>TODO.txt</itemPath>
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>src/IntStack.c</itemPath>
+      <itemPath>src/SymbolStack.c</itemPath>
+      <itemPath>src/SymbolTable.c</itemPath>
+      <itemPath>src/al.l</itemPath>
+      <itemPath>src/expressions.c</itemPath>
+      <itemPath>src/handler.c</itemPath>
+      <itemPath>src/manage.c</itemPath>
+      <itemPath>src/offsets.c</itemPath>
+      <itemPath>src/parser.c</itemPath>
+      <itemPath>src/parser.y</itemPath>
+      <itemPath>src/quads.c</itemPath>
+      <itemPath>src/scanner.c</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+      </compileType>
+      <item path="TODO.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/IntStack.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/SymbolStack.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/SymbolTable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/expressions.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/handler.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/manage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/offsets.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/parser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/quads.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/IntStack.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/SymbolStack.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/SymbolTable.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/al.l" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/expressions.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/handler.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/manage.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/offsets.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/parser.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/parser.y" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/quads.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/scanner.c" ex="false" tool="0" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>default</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="TODO.txt" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/IntStack.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/SymbolStack.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/SymbolTable.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/expressions.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/handler.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/manage.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/offsets.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/parser.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="include/quads.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/IntStack.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/SymbolStack.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/SymbolTable.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/al.l" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/expressions.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/handler.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/manage.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/offsets.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/parser.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/parser.y" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/quads.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="src/scanner.c" ex="false" tool="0" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
