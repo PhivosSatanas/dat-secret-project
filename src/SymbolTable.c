@@ -8,7 +8,7 @@
 #include "../include/SymbolTable.h"
 
 
-int hashFunction (char* s){ 
+int hashFunction (char* s){   
 	char* p;
 	unsigned h=0, g=0;
 
