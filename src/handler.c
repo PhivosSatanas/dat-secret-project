@@ -10,6 +10,7 @@
 #include "../include/expressions.h"
 #include "../include/quads.h"
 #include "../include/offsets.h"
+#include <math.h>
 
 Expr* handle_expr_gr_expr (Expr* expr1, Expr* expr2){
 	printf("expr -> expr > expr\n");
@@ -166,33 +167,33 @@ void trueTest (Expr * expr){
 	assert(expr);
 	
 	switch(expr->type){
-		case constnum_e:
+		case numconst_e:
 			expr->boolconst = expr->numconst != 0;
-			expr->type = constbool_e;
+			expr->type = boolconst_e;
 			break;
 		case programfunc_e:
 			expr->boolconst = 1;
-			expr->type = constbool_e;
+			expr->type = boolconst_e;
 			break;
-		case conststring_e:
+		case stringconst_e:
 			expr->boolconst = expr->strconst[0] != '\0';
-			expr->type = constbool_e;
+			expr->type = boolconst_e;
 			break;
 		case tableitem_e: //TODO not sure if this should be here
 			expr->boolconst = 1; // or this is the proper assignment
-			expr->type = constbool_e;
+			expr->type = boolconst_e;
 			break;
 		case newtable_e:
 			expr->boolconst = 1;
-			expr->type = constbool_e;
+			expr->type = boolconst_e;
 			break;
 		case nil_e:
 			expr->boolconst = 0;
-			expr->type = constbool_e;
+			expr->type = boolconst_e;
 			break;
 		case libraryfunc_e:
 			expr->boolconst = 1;
-			expr->type = constbool_e;
+			expr->type = boolconst_e;
 			break;
 		default: break;
 	}
@@ -223,8 +224,8 @@ Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
 	trueTest(expr2);
 	
 	// if called with {true/false and true/false;}
-	if ((expr1->type == constbool_e) && (expr2->type == constbool_e)){
-		E->type = constbool_e;
+	if ((expr1->type == boolconst_e) && (expr2->type == boolconst_e)){
+		E->type = boolconst_e;
 		E->boolconst = expr1->boolconst && expr2->boolconst;
 		if(E->boolconst == 0){ // If result is false jump to the assign false
 			pushInt(E->falselist, nextquadlabel());
@@ -233,17 +234,17 @@ Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
 		return E;
 	}
 	// if called with {false and x;} or {x and false;}}		
-	else if (((expr1->type == constbool_e) && (expr1->boolconst == 0))
-			|| ((expr2->type == constbool_e) && (expr2->boolconst == 0))){
+	else if (((expr1->type == boolconst_e) && (expr1->boolconst == 0))
+			|| ((expr2->type == boolconst_e) && (expr2->boolconst == 0))){
 		pushInt(E->falselist, nextquadlabel());
 		emit(jump, NULL, NULL, NULL, 0);
-		E->type = constbool_e;
+		E->type = boolconst_e;
 		E->boolconst = 0;
 		return E;
 	}		
 	// expr1
 	// if called with {true and x;} ignore expr1 entirely
-	if((expr1->type == constbool_e) && (expr1->boolconst == 1)){}
+	if((expr1->type == boolconst_e) && (expr1->boolconst == 1)){}
 	else {
 		int nextQuad = nextquadlabel();
 		emit(if_eq, expr1, newexpr_constbool(1), NULL, nextQuad+2);
@@ -252,7 +253,7 @@ Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
 	} 	
 	// expr2
 	// if input is {x and true;} ignore expr2 entirely		
-	if((expr2->type == constbool_e) && (expr2->boolconst == 1)){}
+	if((expr2->type == boolconst_e) && (expr2->boolconst == 1)){}
 	else if (expr2->type != boolexpr_e){
 		int nextQuad = nextquadlabel();
 		emit(if_eq, expr2, newexpr_constbool(1), NULL, 0);
@@ -318,139 +319,181 @@ Expr* handle_expr_op_expr (Expr* expr1, char op, Expr* expr2){
 	assert(expr1);
 	assert(expr2);	
 	
-	Expr* expr = newexpr(arithmeticexpr_e);
+	Expr * expr = newexpr(arithmeticexpr_e);
+	expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();
+	expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist); // TODO thinks true-falselists aren't needed
+	expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
 	
 	switch (op){
-		case ('+'):
+		case ('+'): {
 			printf("expr -> expr '+' expr\n");
-			if(expr1->type == programfunc_e ||
-			   expr1->type == libraryfunc_e ||
-			   expr1->type == boolexpr_e    ||
-			   expr1->type == newtable_e    ||
-			   expr1->type == constbool_e   ||
-			   expr1->type == conststring_e ||
-			   expr1->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
 	
-			if(expr2->type == programfunc_e||
-			   expr2->type == libraryfunc_e||
-			   expr2->type == boolexpr_e   ||
-			   expr2->type == newtable_e   ||
-			   expr2->type == constbool_e  ||
-			   expr2->type == conststring_e||
-			   expr2->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-				
-		    expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();
-		    expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist);
-		    expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
-			emit (add, expr1, expr2, expr, 0);
-			return (expr);
-		
-		case ('-'):
-			printf("expr -> expr '-' expr\n");
-			if(expr1->type == programfunc_e ||
-			   expr1->type == libraryfunc_e ||
-			   expr1->type == boolexpr_e    ||
-			   expr1->type == newtable_e    ||
-			   expr1->type == constbool_e   ||
-			   expr1->type == conststring_e ||
-			   expr1->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-	
-			if(expr2->type == programfunc_e||
-			   expr2->type == libraryfunc_e||
-			   expr2->type == boolexpr_e   ||
-			   expr2->type == newtable_e   ||
-			   expr2->type == constbool_e  ||
-			   expr2->type == conststring_e||
-			   expr2->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-				
-		    expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();
-		    expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist);
-		    expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
-			emit (sub, expr1, expr2, expr, 0);
-			return (expr);
-			
-		case ('*'):
-			printf("expr -> expr '*' expr\n");
-			if(expr1->type == programfunc_e || // TODO convert all these to if(!constnum)
-			   expr1->type == libraryfunc_e ||
-			   expr1->type == boolexpr_e    ||
-			   expr1->type == newtable_e    ||
-			   expr1->type == constbool_e   ||
-			   expr1->type == conststring_e ||
-			   expr1->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-	
-			if(expr2->type == programfunc_e||
-			   expr2->type == libraryfunc_e||
-			   expr2->type == boolexpr_e   ||
-			   expr2->type == newtable_e   ||
-			   expr2->type == constbool_e  ||
-			   expr2->type == conststring_e||
-			   expr2->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-				
-		    expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();
-		    expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist);
-		    expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
-			emit (mul, expr1, expr2, expr, 0);
-			return (expr);
-		
-		case ('/'):
-			printf("expr -> expr '/' expr\n");
-			if(expr1->type == programfunc_e ||
-			   expr1->type == libraryfunc_e ||
-			   expr1->type == boolexpr_e    ||
-			   expr1->type == newtable_e    ||
-			   expr1->type == constbool_e   ||
-			   expr1->type == conststring_e ||
-			   expr1->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-	
-			if(expr2->type == programfunc_e||
-			   expr2->type == libraryfunc_e||
-			   expr2->type == boolexpr_e   ||
-			   expr2->type == newtable_e   ||
-			   expr2->type == constbool_e  ||
-			   expr2->type == conststring_e||
-			   expr2->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-				
-		    expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();
-		    expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist);
-		    expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
-			emit (divide, expr1, expr2, expr, 0);
-			return (expr);
-		
-		case ('%'):
-			printf("expr -> expr '%%' expr\n");
-			if(expr1->type == programfunc_e ||
-			   expr1->type == libraryfunc_e ||
-			   expr1->type == boolexpr_e    ||
-			   expr1->type == newtable_e    ||
-			   expr1->type == constbool_e   ||
-			   expr1->type == conststring_e ||
-			   expr1->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-	
-			if(expr2->type == programfunc_e||
-			   expr2->type == libraryfunc_e||
-			   expr2->type == boolexpr_e   ||
-			   expr2->type == newtable_e   ||
-			   expr2->type == constbool_e  ||
-			   expr2->type == conststring_e||
-			   expr2->type == nil_e)
-				printf("%d: #WARNING: Expression is not of type 'number'.\n",yylineno);
-				
-		    expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();
-		    expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist);
-		    expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
-			emit (mod, expr1, expr2, expr, 0);
+			if ((expr1->type == numconst_e) && expr2->type == numconst_e){
+				expr->numconst = expr1->numconst + expr2->numconst;
+				expr->type = numconst_e;
+			}
+			else {
+				if(expr1->type == programfunc_e ||
+				   expr1->type == libraryfunc_e ||
+				   expr1->type == boolexpr_e    ||
+				   expr1->type == newtable_e    ||
+				   expr1->type == boolconst_e   ||
+				   expr1->type == stringconst_e ||
+				   expr1->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				if(expr2->type == programfunc_e||
+				   expr2->type == libraryfunc_e||
+				   expr2->type == boolexpr_e   ||
+				   expr2->type == newtable_e   ||
+				   expr2->type == boolconst_e  ||
+				   expr2->type == stringconst_e||
+				   expr2->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				emit(add, expr1, expr2, expr, 0);
+			}
 			return (expr);
 		}
+		case ('-'): {
+			printf("expr -> expr '-' expr\n");
+	
+			if ((expr1->type == numconst_e) && expr2->type == numconst_e){
+				expr->numconst = expr1->numconst - expr2->numconst;
+				expr->type = numconst_e;
+			}
+			else {
+				if(expr1->type == programfunc_e ||
+				   expr1->type == libraryfunc_e ||
+				   expr1->type == boolexpr_e    ||
+				   expr1->type == newtable_e    ||
+				   expr1->type == boolconst_e   ||
+				   expr1->type == stringconst_e ||
+				   expr1->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				if(expr2->type == programfunc_e||
+				   expr2->type == libraryfunc_e||
+				   expr2->type == boolexpr_e   ||
+				   expr2->type == newtable_e   ||
+				   expr2->type == boolconst_e  ||
+				   expr2->type == stringconst_e||
+				   expr2->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				emit(sub, expr1, expr2, expr, 0);
+			}
+			return (expr);
+		}
+		case ('*'): {
+			printf("expr -> expr '*' expr\n");
+	
+			if ((expr1->type == numconst_e) && expr2->type == numconst_e){
+				expr->numconst = expr1->numconst * expr2->numconst;
+				expr->type = numconst_e;
+			}
+			else {
+				if(expr1->type == programfunc_e ||
+				   expr1->type == libraryfunc_e ||
+				   expr1->type == boolexpr_e    ||
+				   expr1->type == newtable_e    ||
+				   expr1->type == boolconst_e   ||
+				   expr1->type == stringconst_e ||
+				   expr1->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				if(expr2->type == programfunc_e||
+				   expr2->type == libraryfunc_e||
+				   expr2->type == boolexpr_e   ||
+				   expr2->type == newtable_e   ||
+				   expr2->type == boolconst_e  ||
+				   expr2->type == stringconst_e||
+				   expr2->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				emit(mul, expr1, expr2, expr, 0);
+			}
+			return (expr);
+		}
+		case ('/'): {
+			printf("expr -> expr '/' expr\n");
+	
+			if ((expr1->type == numconst_e) && expr2->type == numconst_e){
+				if (expr2->numconst == 0){ 
+					printf("%d: #ERROR: Expression resolves to division by "
+							"zero.\n", yylineno);
+				}
+				expr->numconst = expr1->numconst / expr2->numconst; //TODO consider case x%0
+				expr->type = numconst_e;
+			}
+			else {
+				if(expr1->type == programfunc_e ||
+				   expr1->type == libraryfunc_e ||
+				   expr1->type == boolexpr_e    ||
+				   expr1->type == newtable_e    ||
+				   expr1->type == boolconst_e   ||
+				   expr1->type == stringconst_e ||
+				   expr1->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				if(expr2->type == programfunc_e||
+				   expr2->type == libraryfunc_e||
+				   expr2->type == boolexpr_e   ||
+				   expr2->type == newtable_e   ||
+				   expr2->type == boolconst_e  ||
+				   expr2->type == stringconst_e||
+				   expr2->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				emit(divide, expr1, expr2, expr, 0);
+			}
+			return (expr);
+		}
+		case ('%'): {
+			printf("expr -> expr '%%' expr\n");
+			
+			if ((expr1->type == numconst_e) && expr2->type == numconst_e){
+				if (expr2->numconst == 0){ 
+					printf("%d: #ERROR: Expression resolves to division by "
+							"zero.\n", yylineno);
+				}
+				expr->numconst = fmod(expr1->numconst, expr2->numconst); //TODO consider case x%0
+				expr->type = numconst_e;
+			}
+			else {
+				if(expr1->type == programfunc_e ||
+				   expr1->type == libraryfunc_e ||
+				   expr1->type == boolexpr_e    ||
+				   expr1->type == newtable_e    ||
+				   expr1->type == boolconst_e   ||
+				   expr1->type == stringconst_e ||
+				   expr1->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				if(expr2->type == programfunc_e||
+				   expr2->type == libraryfunc_e||
+				   expr2->type == boolexpr_e   ||
+				   expr2->type == newtable_e   ||
+				   expr2->type == boolconst_e  ||
+				   expr2->type == stringconst_e||
+				   expr2->type == nil_e){
+						printf("%d: #WARNING: Arithmetic operation with operant"
+								" not of type 'number'.\n",yylineno);
+				}
+				emit(mod, expr1, expr2, expr, 0);
+			}
+			return (expr);
+		}
+	}
 	assert(0); return NULL;
 }
 
@@ -553,8 +596,8 @@ Expr* handle_lvalue_op_op (Expr* lvalue, char op){
 
 void checkuminus (Expr* e){
 	assert(e);
-	if (e->type == constbool_e	||
-	   e->type == conststring_e	||
+	if (e->type == boolconst_e	||
+	   e->type == stringconst_e	||
 	   e->type == nil_e			||
 	   e->type == newtable_e	||
 	   e->type == programfunc_e	||
