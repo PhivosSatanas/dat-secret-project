@@ -9,6 +9,7 @@ dist/
 nbdist/
 nbactions.xml
 nb-configuration.xml
+nbproject/private/private.xml
 
 # Class Files #
 *.class
@@ -18,19 +19,16 @@ nb-configuration.xml
 *.war
 *.ear
 
-# C Object files #
-*.o
-
 #############
 ## Backups by misc editors
 #############
 *~
 
 #############
-# Project Binary
+# Project Specific
 #############
+/src/obj
 alpha_compiler
-a.out
 
 #############
 ## Windows detritus
@@ -48,3 +46,6 @@ $RECYCLE.BIN/
 
 # Mac crap
 .DS_Store
+
+
+a.out

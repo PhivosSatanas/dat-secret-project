@@ -321,7 +321,7 @@ Expr* handle_expr_op_expr (Expr* expr1, char op, Expr* expr2){
 	
 	Expr * expr = newexpr(arithmeticexpr_e);
 	expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();
-	expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist); // TODO thinks true-falselists aren't needed
+	expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist); // TODO I think true-falselists aren't needed
 	expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
 	
 	switch (op){
@@ -429,7 +429,7 @@ Expr* handle_expr_op_expr (Expr* expr1, char op, Expr* expr2){
 					printf("%d: #ERROR: Expression resolves to division by "
 							"zero.\n", yylineno);
 				}
-				expr->numconst = expr1->numconst / expr2->numconst; //TODO consider case x%0
+				expr->numconst = expr1->numconst / expr2->numconst;
 				expr->type = numconst_e;
 			}
 			else {
@@ -465,7 +465,7 @@ Expr* handle_expr_op_expr (Expr* expr1, char op, Expr* expr2){
 					printf("%d: #ERROR: Expression resolves to division by "
 							"zero.\n", yylineno);
 				}
-				expr->numconst = fmod(expr1->numconst, expr2->numconst); //TODO consider case x%0
+				expr->numconst = fmod(expr1->numconst, expr2->numconst);
 				expr->type = numconst_e;
 			}
 			else {
@@ -503,7 +503,8 @@ Expr* handle_op_op_lvalue (Expr* lvalue, char op){
 	assert(lvalue->sym);
 
 	if ((lvalue->sym->symbolType == FUNC) || (lvalue->sym->symbolType == LIB_FUNC)){
-		printf("%d: #ERROR: Illegal expression '%c%c%s'. Function identifiers are const.\n", yylineno, op, op, lvalue->sym->name);
+		printf("%d: #ERROR: Illegal expression '%c%c%s'. Function identifiers "
+				"are const.\n", yylineno, op, op, lvalue->sym->name);
 		// TODO signal error
 		return NULL; //TODO was assert(0) here
 	}
