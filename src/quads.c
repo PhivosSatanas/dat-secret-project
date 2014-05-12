@@ -126,17 +126,17 @@ int print_const (Expr * e){
 	char buf[20];
 
 	switch (e->type){
-		case conststring_e:
+		case stringconst_e:
 			printf("\"%s\"",e->strconst);
 			tempInt = strlen(e->strconst);
 			tempInt = tempInt +2;
 			break;
-		case constnum_e:
+		case numconst_e:
 			printf("%f",e->numconst);
 			sprintf(buf,"%f",e->numconst);
 			tempInt = strlen(buf);
 			break;
-		case constbool_e:
+		case boolconst_e:
 			if (e->boolconst==0){
 				printf("false");
 				tempInt = 5;
@@ -213,29 +213,38 @@ void printQuads(){
 
 		// Print quad's Arg1 field
 		if (tempQuad.arg1 != NULL){
-			if ((tempQuad.arg1)->sym == NULL){
+			if (   (tempQuad.arg1)->type == stringconst_e 
+				|| (tempQuad.arg1)->type == numconst_e
+				|| (tempQuad.arg1)->type == boolconst_e
+				|| (tempQuad.arg1)->type == nil_e){
 				z = print_const(tempQuad.arg1);
 			}
 			else {
+				assert(tempQuad.arg1->sym);
 				printf("%s", tempQuad.arg1->sym->name);
 				z = strlen(tempQuad.arg1->sym->name);
 			}
 			for(; z<20; z++) { printf(" "); }
 		}
-		else	{ printf("                    "); }
+		else { printf("                    "); }
 
 		// Print quad's Arg2 field
 		if (tempQuad.arg2 != NULL){
-			if ((tempQuad.arg2)->sym == NULL)
+			if (   (tempQuad.arg2)->type == stringconst_e 
+				|| (tempQuad.arg2)->type == numconst_e
+				|| (tempQuad.arg2)->type == boolconst_e
+				|| (tempQuad.arg2)->type == nil_e){
 				z = print_const(tempQuad.arg2);
+			}
 			else {
+				assert(tempQuad.arg2->sym);
 				printf("%s",(((tempQuad.arg2))->sym)->name);
 				z=strlen((((tempQuad.arg2))->sym)->name);
 			}
 			for(; z<20; z++) {printf(" ");}
 
 		}
-		else	{printf("                    ");}
+		else { printf("                    "); }
 
 		// Print quad's Result field
 		if (tempQuad.result != NULL){
@@ -246,7 +255,7 @@ void printQuads(){
 			else { z = print_const(tempQuad.result); }
 			for (; z<19; z++) { printf(" "); }
 		}
-		else	{ printf("                   "); }
+		else { printf("                   "); }
 
 		// Print quad's Label
 		if (tempQuad.label != 0) 	{ printf("%d\n",tempQuad.label); }

@@ -51,7 +51,6 @@ void manage_stmt_expr(Expr * expr) {
 	backpatch(expr->truelist,  nextQuad);
 	backpatch(expr->falselist, nextQuad); //TODO validate was nextQuad+2
 	
-	//TODO emit only if boolexpr_e
 	if (expr->type == boolexpr_e){
 		emit(assign, newexpr_constbool(1), NULL, boolExprResult, 0);
 		emit(jump, NULL, NULL, NULL, nextQuad+3);
@@ -239,8 +238,8 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 	if (tempSymbol != NULL){
 		if (tempSymbol->symbolType == FUNC ||
 				tempSymbol->symbolType == LIB_FUNC) {
-			printf("%d: #ERROR: Cannot assign value to constant function \
-identifier \"%s\".\n", yylineno, lvalue->sym->name);
+			printf("%d: #ERROR: Cannot assign value to constant function "
+					"identifier \"%s\".\n", yylineno, lvalue->sym->name);
 		}
 		// OK!
 		if (lvalue->type == tableitem_e){ //case lvalue[index] = expr
@@ -306,8 +305,8 @@ Expr * manage_lvalue_ID(char * tempId) {
 		else if ((tempSymbol->declInFunc != topSymbol(curFuncStack)) &&
 				(tempSymbol->symbolType == VAR
 						|| tempSymbol->symbolType == ARG)) { // TODO not tested from != FUNC || != LIB_FUNC
-			printf("%d: #ERROR: Cannot access identifier \"%s\", declared in \
-a different function. ",yylineno,tempId);
+			printf("%d: #ERROR: Cannot access identifier \"%s\", declared in "
+					"a different function. ",yylineno,tempId);
 			printf("Identifier \"%s\" last declared in line %d.\n",
 					tempId, tempSymbol->declInLine);
 		}
@@ -330,8 +329,8 @@ struct Expr * manage_lvalue_LOCAL_ID(char * tempId) {
 	}
 	else if(tempSymbol == NULL) {
 		if (isLibSymbol(tempId)) {
-			printf("%d: #ERROR: Cannot declare identifier \"%s\" as local, \
-with name similar to that of a library function.\n",
+			printf("%d: #ERROR: Cannot declare identifier \"%s\" as local, "
+					"with name similar to that of a library function.\n",
 					yylineno, tempId);
 		}
 		else {
@@ -354,8 +353,8 @@ struct Expr * manage_lvalue_DBLCOLON_ID(char * tempId) {
 		return lvalue_expr(tempSymbol);
 	}
 	else if (tempSymbol == NULL) {
-		printf("%d: #ERROR: Cannot access undeclared global \
-identifier \"%s\".\n",yylineno,tempId);
+		printf("%d: #ERROR: Cannot access undeclared global "
+				"identifier \"%s\".\n",yylineno,tempId);
 	}
 	else { assert (0); } //no man's land
 	return NULL;
@@ -531,11 +530,13 @@ Symbol * newFunctionSymbol (char * tempId) {
 	tempSymbol = lookupInScope(tempId,currentScope);
 					
 	if (tempSymbol != NULL) { //if symbol with same name in current scope exists
-		printf("%d: #ERROR: Identifier \"%s\" is already declared in the same scope at line %d.\n",
+		printf("%d: #ERROR: Identifier \"%s\" is already declared in the same "
+				"scope at line %d.\n",
 				yylineno, tempId, tempSymbol->declInLine);
 	}
 	else if (isLibSymbol(tempId)) {
-		printf("%d: #ERROR: Function id \"%s\" is already declared as library function.\n", yylineno, tempId);
+		printf("%d: #ERROR: Function id \"%s\" is already declared as library "
+				"function.\n", yylineno, tempId);
 	}
 	else {
 		tempSymbol = createSymbol(tempId, FUNC);
@@ -582,8 +583,8 @@ void manage_idlist_ID_ids(char * tempId) {
 		printf("%d: #ERROR: Redeclaration of formal \"%s\".\n",yylineno,tempId);
 	}
 	else if (isLibSymbol(tempId)){
-		printf("%d: #ERROR: Formal cannot be declared. Identifier \"'%s'\" is a\
- library function.\n", yylineno, tempId);
+		printf("%d: #ERROR: Formal cannot be declared. Identifier \"'%s'\" is a"
+				" library function.\n", yylineno, tempId);
 	}
 	else {
 		tempSymbol = createSymbol(tempId, ARG);
@@ -659,7 +660,7 @@ void manage_whilestmt_WHILE_expr_parenthesis_stmt() {
 
 /********** forstmt **********/
 void manage_forstmt_FOR() {
-	printf("%d: forstmt -> FOR '(' elist ';' expr ';' elist ')' stmt\n",yylineno);
+	printf("%d: forstmt-> FOR '(' elist ';' expr ';' elist ')' stmt\n",yylineno);
 }
 
 /********** returnstmt **********/

@@ -20,14 +20,14 @@ Expr* newexpr (EXPR_TYPE t){
 }
 
 Expr* newexpr_conststring (char* s){
-	Expr* e = newexpr(conststring_e);
+	Expr* e = newexpr(stringconst_e);
 	e->strconst = strdup(s);
 	return e;
 }
 
 
 Expr* newexpr_constbool (int boolconst){
-	Expr* e = newexpr(constbool_e);
+	Expr* e = newexpr(boolconst_e);
 	if(boolconst == 0)
 		e->boolconst = 0;
 	else
@@ -36,7 +36,7 @@ Expr* newexpr_constbool (int boolconst){
 }
 
 Expr* newexpr_constnum (double Valnumber){
-	Expr* e = newexpr(constnum_e);
+	Expr* e = newexpr(numconst_e);
 	e->numconst = Valnumber;
 	return e;
 }

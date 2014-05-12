@@ -20,7 +20,7 @@ extern int currentScope;
 #include "IntStack.h"
 #include "expressions.h"
 
-typedef enum IOPCODE {
+typedef enum IOPCODE { //TODO delete and or not if done with merikh apotimhsh
 	emptyquad,
 	assign,			add, 			sub,
 	mul,			divide,			mod,

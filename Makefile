@@ -6,7 +6,7 @@ PROJ=alpha_compiler#			# The name of the project and executable
 SDIR=./src#				# Path to included .c files'directory
 IDIR =./include# 			# Path to included .h files' directory
 CC=gcc#	 				# Compiler to be used
-CFLAGS=-I$(IDIR) -Wall#			# Compilation flags
+CFLAGS=-I$(IDIR) -Wall -lm#			# Compilation flags
 
 ODIR=$(SDIR)/obj# 			# Path to output .o files' directory
 LDIR =./lib# 				# Path to library files' directory

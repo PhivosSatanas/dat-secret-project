@@ -7,10 +7,10 @@
 #define _HANDLER_C_
 
 #include <string.h>
+#include <math.h>
+#include "expressions.h"
 #include "IntStack.h"
 #include "SymbolTable.h"
-
-#include "expressions.h"
 #include "quads.h"
 #include "offsets.h"
 
