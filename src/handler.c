@@ -17,26 +17,28 @@ Expr* handle_expr_gr_expr (Expr* expr1, Expr* expr2){
 	assert(expr1);
 	assert(expr2);
 
-	Expr* expr = newexpr(boolexpr_e);
-	expr->sym = newtemp();
+	Expr* E = newexpr(boolexpr_e);
+	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();
+	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
+	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
-	pushInt(expr->truelist, nextquadlabel());
-	pushInt(expr->falselist,nextquadlabel()+1);
+	// case {(a relop b) relop c} or {a relop (b relop c)}
+	if (istempexpr(expr1) || istempexpr(expr2)){
+		int nextQuad = nextquadlabel();
+		backpatch(E->truelist, nextQuad);
+		backpatch(E->falselist, nextQuad+2);
+		emit(assign, newexpr_constbool(1), NULL, E, 0);
+		emit(jump, NULL, NULL, NULL, nextQuad+3);
+		emit(assign, newexpr_constbool(0), NULL, E, 0);
+	}
 	
+	pushInt(E->truelist, nextquadlabel());
 	emit(if_greater, expr1, expr2, NULL, 0);
+	pushInt(E->falselist, nextquadlabel());
 	emit(jump, NULL, NULL, NULL, 0);
 	
-	int t1 = nextquadlabel();
-	int t2 = nextquadlabel()+2;
-	
-	emit(assign, newexpr_constbool(1), NULL, expr, 0);
-	emit(jump, NULL, NULL, NULL, nextquadlabel()+2);
-	emit(assign, newexpr_constbool(0), NULL, expr, 0);
-	
-	backpatch (expr->truelist, t1);
-    backpatch (expr->falselist, t2);
-	
-	return expr;
+	return E;
 }
 
 Expr* handle_expr_gr_eq_expr (Expr* expr1, Expr* expr2){
@@ -44,26 +46,28 @@ Expr* handle_expr_gr_eq_expr (Expr* expr1, Expr* expr2){
 	assert(expr1);
 	assert(expr2);
 
-	Expr* expr = newexpr(boolexpr_e);
-	expr->sym = newtemp();
+	Expr* E = newexpr(boolexpr_e);
+	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();
+	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
+	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
-	pushInt(expr->truelist, nextquadlabel());
-	pushInt(expr->falselist,nextquadlabel()+1);
+	// case {(a relop b) relop c} or {a relop (b relop c)}
+	if (istempexpr(expr1) || istempexpr(expr2)){
+		int nextQuad = nextquadlabel();
+		backpatch(E->truelist, nextQuad);
+		backpatch(E->falselist, nextQuad+2);
+		emit(assign, newexpr_constbool(1), NULL, E, 0);
+		emit(jump, NULL, NULL, NULL, nextQuad+3);
+		emit(assign, newexpr_constbool(0), NULL, E, 0);
+	}
 	
+	pushInt(E->truelist, nextquadlabel());
 	emit(if_greatereq, expr1, expr2, NULL, 0);
+	pushInt(E->falselist, nextquadlabel());
 	emit(jump, NULL, NULL, NULL, 0);
 	
-	int t1 = nextquadlabel();
-	int t2 = nextquadlabel()+2;
-	
-	emit(assign, newexpr_constbool(1), NULL, expr, 0);
-	emit(jump, NULL, NULL, NULL, nextquadlabel()+2);
-	emit(assign, newexpr_constbool(0), NULL, expr, 0);
-	
-	backpatch (expr->truelist, t1);
-    backpatch (expr->falselist, t2);
-	
-	return expr;
+	return E;
 }
 
 Expr* handle_expr_ls_expr (Expr* expr1, Expr* expr2){
@@ -73,11 +77,23 @@ Expr* handle_expr_ls_expr (Expr* expr1, Expr* expr2){
 	
 	Expr* E = newexpr(boolexpr_e);
 	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
-			istempexpr(expr2) ? expr2->sym : newtemp();	
+			istempexpr(expr2) ? expr2->sym : newtemp();
+	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
+	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
+	
+	// case {(a relop b) relop c} or {a relop (b relop c)}
+	if (istempexpr(expr1) || istempexpr(expr2)){
+		int nextQuad = nextquadlabel();
+		backpatch(E->truelist, nextQuad);
+		backpatch(E->falselist, nextQuad+2);
+		emit(assign, newexpr_constbool(1), NULL, E, 0);
+		emit(jump, NULL, NULL, NULL, nextQuad+3);
+		emit(assign, newexpr_constbool(0), NULL, E, 0);
+	}
 	
 	pushInt(E->truelist, nextquadlabel());
-	pushInt(E->falselist, nextquadlabel()+1);
 	emit(if_less, expr1, expr2, NULL, 0);
+	pushInt(E->falselist, nextquadlabel());
 	emit(jump, NULL, NULL, NULL, 0);
 	
 	return E;
@@ -88,26 +104,28 @@ Expr* handle_expr_ls_eq_expr (Expr* expr1, Expr* expr2){
 	assert(expr1);
 	assert(expr2);
 
-	Expr* expr = newexpr(boolexpr_e);
-	expr->sym = newtemp();
+	Expr* E = newexpr(boolexpr_e);
+	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();
+	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
+	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
-	pushInt(expr->truelist, nextquadlabel());
-	pushInt(expr->falselist,nextquadlabel()+1);
+	// case {(a relop b) relop c} or {a relop (b relop c)}
+	if (istempexpr(expr1) || istempexpr(expr2)){
+		int nextQuad = nextquadlabel();
+		backpatch(E->truelist, nextQuad);
+		backpatch(E->falselist, nextQuad+2);
+		emit(assign, newexpr_constbool(1), NULL, E, 0);
+		emit(jump, NULL, NULL, NULL, nextQuad+3);
+		emit(assign, newexpr_constbool(0), NULL, E, 0);
+	}
 	
+	pushInt(E->truelist, nextquadlabel());
 	emit(if_lesseq, expr1, expr2, NULL, 0);
+	pushInt(E->falselist, nextquadlabel());
 	emit(jump, NULL, NULL, NULL, 0);
 	
-	int t1 = nextquadlabel();
-	int t2 = nextquadlabel()+2;
-	
-	emit(assign, newexpr_constbool(1), NULL, expr, 0);
-	emit(jump, NULL, NULL, NULL, nextquadlabel()+2);
-	emit(assign, newexpr_constbool(0), NULL, expr, 0);
-	
-	backpatch (expr->truelist, t1);
-    backpatch (expr->falselist, t2);
-	
-	return expr;
+	return E;
 }
 
 Expr* handle_expr_eq_expr (Expr* expr1, Expr* expr2){
@@ -115,26 +133,28 @@ Expr* handle_expr_eq_expr (Expr* expr1, Expr* expr2){
 	assert(expr1);
 	assert(expr2);
 
-	Expr* expr = newexpr(boolexpr_e);
-	expr->sym = newtemp();
+	Expr* E = newexpr(boolexpr_e);
+	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();
+	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
+	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
-	pushInt(expr->truelist, nextquadlabel());
-	pushInt(expr->falselist,nextquadlabel()+1);
+	// case {(a relop b) relop c} or {a relop (b relop c)}
+	if (istempexpr(expr1) || istempexpr(expr2)){
+		int nextQuad = nextquadlabel();
+		backpatch(E->truelist, nextQuad);
+		backpatch(E->falselist, nextQuad+2);
+		emit(assign, newexpr_constbool(1), NULL, E, 0);
+		emit(jump, NULL, NULL, NULL, nextQuad+3);
+		emit(assign, newexpr_constbool(0), NULL, E, 0);
+	}
 	
+	pushInt(E->truelist, nextquadlabel());
 	emit(if_eq, expr1, expr2, NULL, 0);
+	pushInt(E->falselist, nextquadlabel());
 	emit(jump, NULL, NULL, NULL, 0);
 	
-	int t1 = nextquadlabel();
-	int t2 = nextquadlabel()+2;
-	
-	emit(assign, newexpr_constbool(1), NULL, expr, 0);
-	emit(jump, NULL, NULL, NULL, nextquadlabel()+2);
-	emit(assign, newexpr_constbool(0), NULL, expr, 0);
-	
-	backpatch (expr->truelist, t1);
-    backpatch (expr->falselist, t2);
-	
-	return expr;
+	return E;
 }
 
 Expr* handle_expr_not_eq_expr (Expr* expr1, Expr* expr2){
@@ -142,26 +162,28 @@ Expr* handle_expr_not_eq_expr (Expr* expr1, Expr* expr2){
 	assert(expr1);
 	assert(expr2);
 
-	Expr* expr = newexpr(boolexpr_e);
-	expr->sym = newtemp();
+	Expr* E = newexpr(boolexpr_e);
+	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();
+	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
+	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
-	pushInt(expr->truelist, nextquadlabel());
-	pushInt(expr->falselist,nextquadlabel()+1);
+	// case {(a relop b) relop c} or {a relop (b relop c)}
+	if (istempexpr(expr1) || istempexpr(expr2)){
+		int nextQuad = nextquadlabel();
+		backpatch(E->truelist, nextQuad);
+		backpatch(E->falselist, nextQuad+2);
+		emit(assign, newexpr_constbool(1), NULL, E, 0);
+		emit(jump, NULL, NULL, NULL, nextQuad+3);
+		emit(assign, newexpr_constbool(0), NULL, E, 0);
+	}
 	
+	pushInt(E->truelist, nextquadlabel());
 	emit(if_noteq, expr1, expr2, NULL, 0);
+	pushInt(E->falselist, nextquadlabel());
 	emit(jump, NULL, NULL, NULL, 0);
 	
-	int t1 = nextquadlabel();
-	int t2 = nextquadlabel()+2;
-	
-	emit(assign, newexpr_constbool(1), NULL, expr, 0);
-	emit(jump, NULL, NULL, NULL, nextquadlabel()+2);
-	emit(assign, newexpr_constbool(0), NULL, expr, 0);
-	
-	backpatch (expr->truelist, t1);
-    backpatch (expr->falselist, t2);
-	
-	return expr;
+	return E;
 }
 
 void trueTest (Expr * expr){
@@ -311,7 +333,7 @@ Expr* handle_term_not_expr (Expr* expr1){
 	assert(expr1);
 
 	Expr* expr = newexpr(var_e); // was boolexpr_e, seems to work
-	expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();	
+	expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();	// reusing temp sym
 	expr->truelist = expr1->falselist;
 	expr->falselist = expr1->truelist;
 	trueTest(expr1);
@@ -319,7 +341,7 @@ Expr* handle_term_not_expr (Expr* expr1){
 	if (expr1->type == boolconst_e){
 		expr->type = boolconst_e;
 		expr->boolconst = !expr1->boolconst;
-	}	
+	}	//case {not a;}
 	else if ((expr1->type != boolexpr_e) && !istempexpr(expr1)){
 		emit(if_eq, expr1, newexpr_constbool(1), NULL, nextquadlabel()+3);
 		emit(assign, newexpr_constbool(1), NULL, expr, 0);
@@ -336,8 +358,6 @@ Expr* handle_expr_op_expr (Expr* expr1, char op, Expr* expr2){
 	Expr * expr = newexpr(arithmeticexpr_e);
 	expr->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
 			istempexpr(expr2) ? expr2->sym : newtemp();	
-	expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist); // TODO I think true-falselists aren't needed
-	expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
 	
 	switch (op){
 		case ('+'): {
@@ -566,7 +586,8 @@ Expr* handle_lvalue_op_op (Expr* lvalue, char op){
 	assert(lvalue->sym);
 
 	if ((lvalue->sym->symbolType == FUNC) || (lvalue->sym->symbolType == LIB_FUNC)){
-		printf("%d: #ERROR: Illegal expression '%s%c%c'. Function identifiers are const.\n", yylineno, lvalue->sym->name, op, op);
+		printf("%d: #ERROR: Illegal expression '%s%c%c'. Function identifiers "
+				"are const.\n", yylineno, lvalue->sym->name, op, op);
 		// TODO signal error
 		return NULL; //TODO was assert(0) here
 	}
@@ -575,7 +596,7 @@ Expr* handle_lvalue_op_op (Expr* lvalue, char op){
 		switch (op){
 			case '+':
 				term = newexpr(var_e);
-				term->sym = newtemp();
+				term->sym = istempexpr(lvalue) ? lvalue->sym : newtemp();	// reusing temp sym
 				if (lvalue->type == tableitem_e){
 					value = emit_iftableitem(lvalue);
 					emit(assign, value, NULL, term, 0);
@@ -591,7 +612,7 @@ Expr* handle_lvalue_op_op (Expr* lvalue, char op){
 				
 			case '-':				
 				term = newexpr(var_e);
-				term->sym = newtemp();
+				term->sym = istempexpr(lvalue) ? lvalue->sym : newtemp();	// reusing temp sym
 				if (lvalue->type == tableitem_e){
 					value = emit_iftableitem(lvalue);
 					emit(assign, value, NULL, term, 0);
