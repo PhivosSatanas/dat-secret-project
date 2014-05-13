@@ -264,6 +264,9 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 				emit(jump, NULL, NULL, NULL, nextQuad+3);
 				emit(assign, newexpr_constbool(0), NULL, assignexpr, 0);
 			}
+			else if (expr->type == boolconst_e && expr->boolconst == 0){				
+				backpatch(expr->falselist,  nextquadlabel());
+			}
 			emit(assign, expr, NULL, lvalue, 0);	
 			emit(assign, lvalue, NULL, assignexpr, 0);
 		}

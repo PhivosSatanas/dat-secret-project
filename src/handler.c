@@ -227,17 +227,11 @@ Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
 	if ((expr1->type == boolconst_e) && (expr2->type == boolconst_e)){
 		E->type = boolconst_e;
 		E->boolconst = expr1->boolconst && expr2->boolconst;
-		if(E->boolconst == 0){ // If result is false jump to the assign false
-			pushInt(E->falselist, nextquadlabel());
-			emit(jump, NULL, NULL, NULL, 0);			
-		}
 		return E;
 	}
 	// if called with {false and x;} or {x and false;}}		
 	else if (((expr1->type == boolconst_e) && (expr1->boolconst == 0))
 			|| ((expr2->type == boolconst_e) && (expr2->boolconst == 0))){
-		pushInt(E->falselist, nextquadlabel());
-		emit(jump, NULL, NULL, NULL, 0);
 		E->type = boolconst_e;
 		E->boolconst = 0;
 		return E;
