@@ -24,7 +24,9 @@ Expr* handle_expr_gr_expr (Expr* expr1, Expr* expr2){
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
 	// case {(a relop b) relop c} or {a relop (b relop c)}
-	if (istempexpr(expr1) || istempexpr(expr2)){
+	if (	(expr1->type != var_e && istempexpr(expr1)) ||
+			(expr2->type != var_e && istempexpr(expr2))
+			){
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -53,7 +55,9 @@ Expr* handle_expr_gr_eq_expr (Expr* expr1, Expr* expr2){
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
 	// case {(a relop b) relop c} or {a relop (b relop c)}
-	if (istempexpr(expr1) || istempexpr(expr2)){
+	if (	(expr1->type != var_e && istempexpr(expr1)) ||
+			(expr2->type != var_e && istempexpr(expr2))
+			){
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -82,7 +86,9 @@ Expr* handle_expr_ls_expr (Expr* expr1, Expr* expr2){
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
 	// case {(a relop b) relop c} or {a relop (b relop c)}
-	if (istempexpr(expr1) || istempexpr(expr2)){
+	if (	(expr1->type != var_e && istempexpr(expr1)) ||
+			(expr2->type != var_e && istempexpr(expr2))
+			){
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -111,7 +117,9 @@ Expr* handle_expr_ls_eq_expr (Expr* expr1, Expr* expr2){
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
 	// case {(a relop b) relop c} or {a relop (b relop c)}
-	if (istempexpr(expr1) || istempexpr(expr2)){
+	if (	(expr1->type != var_e && istempexpr(expr1)) ||
+			(expr2->type != var_e && istempexpr(expr2))
+			){
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -140,7 +148,9 @@ Expr* handle_expr_eq_expr (Expr* expr1, Expr* expr2){
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
 	// case {(a relop b) relop c} or {a relop (b relop c)}
-	if (istempexpr(expr1) || istempexpr(expr2)){
+	if (	(expr1->type != var_e && istempexpr(expr1)) ||
+			(expr2->type != var_e && istempexpr(expr2))
+			){
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -169,7 +179,9 @@ Expr* handle_expr_not_eq_expr (Expr* expr1, Expr* expr2){
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
 	// case {(a relop b) relop c} or {a relop (b relop c)}
-	if (istempexpr(expr1) || istempexpr(expr2)){
+	if (	(expr1->type != var_e && istempexpr(expr1)) ||
+			(expr2->type != var_e && istempexpr(expr2))
+			){
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -328,7 +340,7 @@ Expr* handle_expr_or_expr (Expr* expr1, int boolean_M, Expr* expr2){
 	return E;
 }
 
-Expr* handle_term_not_expr (Expr* expr1){
+Expr* handle_term_not_expr (Expr* expr1){ //TODO {x=a and not b;} could be done without the 4 more emits
 	printf("term -> NOT expr\n");	
 	assert(expr1);
 
