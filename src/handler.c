@@ -72,7 +72,8 @@ Expr* handle_expr_ls_expr (Expr* expr1, Expr* expr2){
 	assert(expr2);
 	
 	Expr* E = newexpr(boolexpr_e);
-	E->sym = newtemp();
+	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();	
 	
 	pushInt(E->truelist, nextquadlabel());
 	pushInt(E->falselist, nextquadlabel()+1);
@@ -204,11 +205,10 @@ int handle_boolean_M(){
 	return nextquadlabel();
 }
 
-Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
+Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){ // TODO fix has extra emmit in x = a and b and c;
 	printf("expr -> expr AND expr\n");
 	assert(expr1);
 	assert(expr2);
-	printf("expr1 is of type %d, expr2 is of type %d\n", expr1->type, expr2->type); //TODO delete
 
 	Expr* E = newexpr(boolexpr_e);
 	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
@@ -226,7 +226,7 @@ Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
 		E->boolconst = expr1->boolconst && expr2->boolconst;
 		return E;
 	}
-	// if called with {false and x;} or {x and false;}}		
+	// if called with {false and x;} or {x and false;}		
 	else if (((expr1->type == boolconst_e) && (expr1->boolconst == 0))
 			|| ((expr2->type == boolconst_e) && (expr2->boolconst == 0))){
 		E->type = boolconst_e;
@@ -260,29 +260,45 @@ Expr* handle_expr_or_expr (Expr* expr1, int boolean_M, Expr* expr2){
 	assert(expr1);
 	assert(expr2);
 
-	Expr* E = newexpr(boolexpr_e);	
-	E->sym = newtemp();
+	Expr* E = newexpr(boolexpr_e);
+	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();	
+	backpatch (expr1->falselist, boolean_M);
+	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
+	E->falselist = expr2->falselist;
 	
-	if (expr1->type != boolexpr_e){
-		int nextQuad = nextquadlabel();
-		emit(if_eq, expr1, newexpr_constbool(1), NULL, 0);
-		pushInt(E->truelist, nextQuad);
+	trueTest(expr1);
+	trueTest(expr2);
+	
+	// if called with {true/false or true/false;}
+	if ((expr1->type == boolconst_e) && (expr2->type == boolconst_e)){
+		E->type = boolconst_e;
+		E->boolconst = expr1->boolconst || expr2->boolconst;
+		return E;
 	}
-	if (expr2->type != boolexpr_e){
+	// if called with {true or x;} or {x or true;}	
+	else if (((expr1->type == boolconst_e) && (expr1->boolconst == 1))
+			|| ((expr2->type == boolconst_e) && (expr2->boolconst == 1))){
+		E->type = boolconst_e;
+		E->boolconst = 1;
+		return E;
+	}		
+	// expr1
+	// if called with {false or x;} ignore expr1 entirely
+	if((expr1->type == boolconst_e) && (expr1->boolconst == 0)){}
+	else {
+		emit(if_eq, expr1, newexpr_constbool(1), NULL, -12312); // TODO this should be zero
+		pushInt(E->truelist, nextquadlabel()-1); // Do NOT move above emit (seg)
+	} 	
+	// expr2
+	// if input is {x or false;} ignore expr2 entirely		
+	if((expr2->type == boolconst_e) && (expr2->boolconst == 0)){}
+	else if (expr2->type != boolexpr_e){
 		int nextQuad = nextquadlabel();
-		emit(if_eq, expr2, newexpr_constbool(1), NULL, 0);
-		pushInt(E->truelist, nextQuad);
+		emit(if_eq, expr2, newexpr_constbool(1), NULL, nextQuad+2);
 		emit(jump, NULL, NULL, NULL, 0);
 		pushInt(E->falselist, nextQuad+1);
-	}
-	if ((expr1->type == boolexpr_e) && (expr2->type == boolexpr_e)){
-		backpatch (expr1->falselist, boolean_M);
-		E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
-		E->falselist = expr2->falselist;
-
-		destroyIntStack(expr1->truelist);
-		destroyIntStack(expr1->falselist);
-	}
+	}	
 	return E;
 }
 
@@ -310,7 +326,8 @@ Expr* handle_expr_op_expr (Expr* expr1, char op, Expr* expr2){
 	assert(expr2);	
 	
 	Expr * expr = newexpr(arithmeticexpr_e);
-	expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();
+	expr->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();	
 	expr->falselist = mergeIntStacks (expr1->falselist, expr2->falselist); // TODO I think true-falselists aren't needed
 	expr->truelist  = mergeIntStacks (expr1->truelist, expr2->truelist);
 	

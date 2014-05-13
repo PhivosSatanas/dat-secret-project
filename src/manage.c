@@ -258,11 +258,16 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 			assignexpr->falselist = expr->falselist;
 			if (expr->type == boolexpr_e){ //TODO every parser rule that has expr must have this if
 				int nextQuad  = nextquadlabel();
+	printf("truelist for assign expr: "); printIntStack(expr->truelist); //TODO delete
+	printf("falselist for assign expr: "); printIntStack(expr->falselist); //TODO delete
 				backpatch(expr->truelist,  nextQuad);
 				backpatch(expr->falselist, nextQuad+2);
 				emit(assign, newexpr_constbool(1), NULL, assignexpr, 0);
 				emit(jump, NULL, NULL, NULL, nextQuad+3);
 				emit(assign, newexpr_constbool(0), NULL, assignexpr, 0);
+			}
+			else if (expr->type == boolconst_e && expr->boolconst == 1){				
+				backpatch(expr->truelist,  nextquadlabel()); // TODO check fi patching correctly
 			}
 			else if (expr->type == boolconst_e && expr->boolconst == 0){				
 				backpatch(expr->falselist,  nextquadlabel());
