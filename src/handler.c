@@ -208,17 +208,14 @@ Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
 	printf("expr -> expr AND expr\n");
 	assert(expr1);
 	assert(expr2);
+	printf("expr1 is of type %d, expr2 is of type %d\n", expr1->type, expr2->type); //TODO delete
 
 	Expr* E = newexpr(boolexpr_e);
-	E->sym = newtemp();
-	
-	printf("expr1 is of type %d, expr2 is of type %d\n", expr1->type, expr2->type); //TODO delete
-	
+	E->sym = istempexpr(expr1) ? expr1->sym :// Will reuse temp sym if available
+			istempexpr(expr2) ? expr2->sym : newtemp();	
 	backpatch (expr1->truelist, boolean_M);
 	E->truelist = expr2->truelist;
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);
-	//destroyIntStack(expr1->truelist);
-	//destroyIntStack(expr1->falselist); // TODO will segfault for {a and false;}
 	
 	trueTest(expr1);
 	trueTest(expr2);
@@ -254,8 +251,7 @@ Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
 		pushInt(E->truelist, nextQuad);
 		emit(jump, NULL, NULL, NULL, 0);
 		pushInt(E->falselist, nextQuad+1);
-	}
-	
+	}	
 	return E;
 }
 
