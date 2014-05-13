@@ -47,14 +47,18 @@ void manage_stmt_expr(Expr * expr) {
 	
 	printf("truelist for expr: "); printIntStack(expr->truelist); //TODO delete
 	printf("falselist for expr: "); printIntStack(expr->falselist); //TODO delete
-	int nextQuad  = nextquadlabel();
-	backpatch(expr->truelist,  nextQuad);
-	backpatch(expr->falselist, nextQuad); //TODO validate was nextQuad+2
 	
+	int nextQuad  = nextquadlabel();
 	if (expr->type == boolexpr_e){
+		backpatch(expr->truelist,  nextQuad);
+		backpatch(expr->falselist, nextQuad+2);
 		emit(assign, newexpr_constbool(1), NULL, boolExprResult, 0);
 		emit(jump, NULL, NULL, NULL, nextQuad+3);
 		emit(assign, newexpr_constbool(0), NULL, boolExprResult, 0);
+	}
+	else {
+		backpatch(expr->truelist,  nextQuad);
+		backpatch(expr->falselist, nextQuad);		
 	}
 	
 	resetTempVarCount();
@@ -246,13 +250,21 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 			emit(tablesetelem, lvalue, lvalue->index, expr, 0);
 			assignexpr = emit_iftableitem(lvalue);
 			assignexpr->type = assignexpr_e;
-		}
+		}	
 		else{
-			emit(assign, expr, NULL, lvalue, 0);	
 			assignexpr = newexpr(assignexpr_e);
-			assignexpr->sym = newtemp();
+			assignexpr->sym = istempexpr(expr) ? expr->sym : newtemp();
 			assignexpr->truelist = expr->truelist;
 			assignexpr->falselist = expr->falselist;
+			if (expr->type == boolexpr_e){ //TODO every parser rule that has expr must have this if
+				int nextQuad  = nextquadlabel();
+				backpatch(expr->truelist,  nextQuad);
+				backpatch(expr->falselist, nextQuad+2);
+				emit(assign, newexpr_constbool(1), NULL, assignexpr, 0);
+				emit(jump, NULL, NULL, NULL, nextQuad+3);
+				emit(assign, newexpr_constbool(0), NULL, assignexpr, 0);
+			}
+			emit(assign, expr, NULL, lvalue, 0);	
 			emit(assign, lvalue, NULL, assignexpr, 0);
 		}
 	}
