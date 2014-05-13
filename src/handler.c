@@ -205,7 +205,7 @@ int handle_boolean_M(){
 	return nextquadlabel();
 }
 
-Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){ // TODO fix has extra emmit in x = a and b and c;
+Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){
 	printf("expr -> expr AND expr\n");
 	assert(expr1);
 	assert(expr2);
@@ -237,10 +237,12 @@ Expr* handle_expr_and_expr (Expr* expr1, int boolean_M, Expr* expr2){ // TODO fi
 	// if called with {true and x;} ignore expr1 entirely
 	if((expr1->type == boolconst_e) && (expr1->boolconst == 1)){}
 	else {
-		int nextQuad = nextquadlabel();
-		emit(if_eq, expr1, newexpr_constbool(1), NULL, nextQuad+2);
-		emit(jump, NULL, NULL, NULL, 0);
-		pushInt(E->falselist, nextQuad+1);
+		if (!istempexpr(expr1)){
+			int nextQuad = nextquadlabel();
+			emit(if_eq, expr1, newexpr_constbool(1), NULL, nextQuad+2);
+			emit(jump, NULL, NULL, NULL, 0);
+			pushInt(E->falselist, nextQuad+1);
+		}
 	} 	
 	// expr2
 	// if input is {x and true;} ignore expr2 entirely		
@@ -287,8 +289,10 @@ Expr* handle_expr_or_expr (Expr* expr1, int boolean_M, Expr* expr2){
 	// if called with {false or x;} ignore expr1 entirely
 	if((expr1->type == boolconst_e) && (expr1->boolconst == 0)){}
 	else {
-		emit(if_eq, expr1, newexpr_constbool(1), NULL, -12312); // TODO this should be zero
-		pushInt(E->truelist, nextquadlabel()-1); // Do NOT move above emit (seg)
+		if (!istempexpr(expr1)){
+			emit(if_eq, expr1, newexpr_constbool(1), NULL, 0);
+			pushInt(E->truelist, nextquadlabel()-1); // Do NOT move above emit (seg)
+		}
 	} 	
 	// expr2
 	// if input is {x or false;} ignore expr2 entirely		
@@ -306,13 +310,17 @@ Expr* handle_term_not_expr (Expr* expr1){
 	printf("term -> NOT expr\n");	
 	assert(expr1);
 
-	Expr* expr = newexpr(boolexpr_e);
-	expr->sym = newtemp();
-	
+	Expr* expr = newexpr(var_e); // was boolexpr_e, seems to work
+	expr->sym = istempexpr(expr1) ? expr1->sym : newtemp();	
 	expr->truelist = expr1->falselist;
 	expr->falselist = expr1->truelist;
+	trueTest(expr1);
 	
-	if (expr1->type != boolexpr_e){
+	if (expr1->type == boolconst_e){
+		expr->type = boolconst_e;
+		expr->boolconst = !expr1->boolconst;
+	}	
+	else if ((expr1->type != boolexpr_e) && !istempexpr(expr1)){
 		emit(if_eq, expr1, newexpr_constbool(1), NULL, nextquadlabel()+3);
 		emit(assign, newexpr_constbool(1), NULL, expr, 0);
 		emit(jump, NULL, NULL, NULL, nextquadlabel()+2);
