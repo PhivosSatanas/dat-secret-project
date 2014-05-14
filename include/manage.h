@@ -16,6 +16,8 @@
 #include "expressions.h"
 #include "offsets.h"
 #include "quads.h"
+#include "ExprList.h"
+#include "ExprDblList.h"
 
 
 extern int 				yylineno;
@@ -41,7 +43,7 @@ void  			manage_stmts_empty				();
 
 //stmt
 void  			manage_stmt_expr				(struct Expr *);
-void  			manage_stmt_ifstmt				();
+void  			manage_stmt_if				();
 void  			manage_stmt_whilestmt			();
 void  			manage_stmt_forstmt				();
 void  			manage_stmt_returnstmt			();
@@ -85,9 +87,9 @@ struct Expr * manage_assignexpr_lvalue_assign_expr		(struct Expr *, struct Expr 
 
 //primary
 struct Expr *	manage_primary_lvalue			(struct Expr *);
-void 			manage_primary_call				();
-void 			manage_primary_tablemake		();
-void 			manage_primary_funcdef_parenthesis();
+struct Expr *	manage_primary_call				(struct Expr *);
+struct Expr *	manage_primary_tablemake		(struct Expr *);
+struct Expr *	manage_primary_par_funcdef		(struct Symbol *);
 struct Expr *	manage_primary_const			(struct Expr *);
 
 //lvalue
@@ -103,19 +105,19 @@ void 			manage_tableitem_call_dot_ID	();
 void 			manage_tableitem_call_brackets_expr();
 
 //call
-void 			manage_call_call_elist_parenthesis();
-void 			manage_call_lvalue_callsuffix	();
-void 			manage_call_funcdef_parenthesis_elist_parenthesis();
+struct Expr *	manage_call_call_par_elist		(struct Expr *, struct ExprList *);
+struct Expr *	manage_call_lvalue_callsuffix	(struct Expr *, struct Expr *);
+struct Expr *	manage_call_par_funcdef_normcall(struct Symbol *, struct Expr *);
 
 //callsuffix
-void 			manage_callsuffix_normcall		();
-void 			manage_callsuffix_methodcall	();
+struct Expr *	manage_callsuffix_normcall		(struct Expr *);
+struct Expr *	manage_callsuffix_methodcall	(struct Expr *);
 
 //normcall
-void 			manage_normcall_elist_parenthesis();
+struct Expr * 	manage_normcall_par_elist		(struct ExprList *);
 
 //methodcall
-void 			manage_methodcall_DBL_DOT_ID_elist_parenthesis();
+struct Expr *	manage_methodcall_DBL_DOT_ID_par_elist (char * id, struct ExprList *);
 
 //elist
 void 			manage_elist_expr_exprs			();
@@ -126,8 +128,8 @@ void 			manage_exprs_comma_expr_exprs	();
 void 			manage_exprs_empty				();
 
 //tablemake
-void 			manage_tablemake_squarebr_elist();
-void 			manage_tablemake_squarebr_indexed();
+struct Expr *	manage_tablemake_squarebr_elist		(struct ExprList *);
+struct Expr *	manage_tablemake_squarebr_indexed	(struct ExprDblList *);
 
 //indexed
 void 			manage_indexed_indexedelem_indexedelems();
@@ -159,25 +161,25 @@ struct Expr * 	manage_const_TRUE();
 struct Expr * 	manage_const_FALSE();
 
 //idlist
-void 			manage_idlist_ID_ids(char *);
-void 			manage_idlist_empty();
+void 			manage_idlist_ID_ids (char *);
+void 			manage_idlist_empty ();
 
 //ids
 void 			manage_ids_comma_ID_ids(char *);
-void 			manage_ids_empty();
+void 			manage_ids_empty ();
 
-//ifstmt
-void			manage_ifstmt_ifexpr_ifsuffix();
+//if
+void			manage_if_ifprefix_stmt (int);
+void			if_ifprefix_stmt_elseprefix_stmt (int, int);
 
-//ifexpr
-void			manage_ifexpr_IF_expr_parenthesis(struct Expr * expr);
+//ifprefix
+int				manage_ifprefix_IF_par_expr (struct Expr * expr);
 
-//ifsuffix
-void 			manage_ifsuffix_stmt_ELSE_stmt();
-void 			manage_ifsuffix_stmt();
+//elseprefix
+int				manage_elseprefix_ELSE ();
 
 //whilestmt
-void 			manage_whilestmt_WHILE_expr_parenthesis_stmt();
+void 			manage_whilestmt_WHILE_expr_parenthesis_stmt ();
 
 //forstmt
 void 			manage_forstmt_FOR();
@@ -188,7 +190,6 @@ void 			manage_returnstmt_RETURN_semicolon();
 
 // TEMPORARY VARIABLES
 void 			resetTempVarCount	();
-void 			patchlabel			(unsigned quadNo, int label);
 
 /*
  * Returns a Symbol pointer to a clean temporary variable (hidden or new).

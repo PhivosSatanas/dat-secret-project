@@ -5,6 +5,9 @@
 %{
 	#include "../include/manage.h"
 	#include "../include/SymbolTable.h"
+	#include "../include/expressions.h"
+	#include "../include/ExprList.h"
+	#include "../include/ExprDblList.h"
 	
 	int yyerror (const char* yaccProvidedMessage);
 	int yylex (void);
@@ -15,25 +18,29 @@
 %expect 1
 
 %union{
-	char * 			stringVal;
-	int				intVal;
-	double 			realVal;
-	struct Symbol * symbolVal;
-	struct Expr   * exprVal;
+	char *					stringVal;
+	int						intVal;
+	double					realVal;
+	struct Symbol		*	SymbolVal;
+	struct ExprList		*	ExprListVal;
+	struct ExprDblList	*	ExprDblListVal;
+	struct Expr			*	ExprVal;
 }
 
 %token IF ELSE WHILE FOR NOT RETURN BREAK CONTINUE LOCAL DBLCOLON TRUE FALSE NIL FUNCTION EQ NOT_EQ DBLDOT STR PLUS_PLUS MINUS_MINUS GREATER_EQ LESS_EQ AND OR UNRECOGNIZED
 
-%token<stringVal> 	ID
-%token<realVal> 	NUMBER
+%token<stringVal>		ID
+%token<realVal>			NUMBER
+%type<stringVal>		funcname	STR
+%type<intVal>			funcbody	M			ifprefix	elseprefix
+%type<SymbolVal>		funcdef		funcprefix
+%type<ExprListVal>		elist
+%type<ExprDblListVal>	indexed
+%type<ExprVal>			lvalue		tableitem	primary		assignexpr
+						call		callsuffix	normcall	methodcall
+						term		tablemake	const		expr
+						stmts		stmt		BREAK		CONTINUE
 
-%type<stringVal>	funcname	STR
-%type<intVal>		funcbody	M
-%type<symbolVal> 	funcdef		funcprefix
-%type<exprVal>		lvalue		tableitem	primary		assignexpr
-					call		term		tablemake	const	
-					expr		elist		stmts		stmt		
-					BREAK		CONTINUE
 %left	'='
 %left	OR
 %left	AND
@@ -48,14 +55,15 @@
 
 %%
 
-program:	stmts					{ manage_stmts						(); } ;
+program:	stmts					{ manage_stmts						(); } 
+		;
 
 stmts:	stmts stmt					{ manage_stmts_stmt					(); }
 		| /* empty */				{ manage_stmts_empty				(); }
 		;
 
 stmt:	expr';'						{ manage_stmt_expr				  ($1); }
-		| ifstmt					{ manage_stmt_ifstmt				(); }
+		| if						{ manage_stmt_if				(); }
 		| whilestmt					{ manage_stmt_whilestmt				(); }
 		| forstmt					{ manage_stmt_forstmt				(); }
 		| returnstmt				{ manage_stmt_returnstmt			(); }
@@ -87,7 +95,8 @@ expr:	assignexpr					{ $$ = manage_expr_assignexpr	  ($1); }
 		| term						{ $$ = manage_expr_term($1); 			}
 		;
 		
-M:									{ $$ = handle_boolean_M				();	};
+M:									{ $$ = handle_boolean_M				();	}
+		;
 
 term:	'(' expr ')'				{ $$ = manage_term_expr_parenthesis($2);}
 		| '-' expr %prec UMINUS		{ $$ = handle_term_uminus_expr($2); 	}
@@ -99,42 +108,41 @@ term:	'(' expr ')'				{ $$ = manage_term_expr_parenthesis($2);}
 		| primary					{ $$ = manage_term_primary($1);			}
 		;
 
-assignexpr: 	lvalue '=' expr		{ $$ = manage_assignexpr_lvalue_assign_expr($1, $3);};
-
-primary:lvalue						{ $$ = manage_primary_lvalue($1); 		}
-		| call						{ manage_primary_call				(); }
-		| tablemake					{ manage_primary_tablemake			(); }
-		| '(' funcdef ')'			{ manage_primary_funcdef_parenthesis(); }
-		| const						{ manage_primary_const($1);}
+assignexpr: lvalue '=' expr		{ $$ = manage_assignexpr_lvalue_assign_expr($1, $3);}
 		;
 
-lvalue:	ID							{ $$ = manage_lvalue_ID				($1); }
-		| LOCAL ID					{ $$ = manage_lvalue_LOCAL_ID		($2); }
-		| DBLCOLON ID				{ $$ = manage_lvalue_DBLCOLON_ID	($2); }
-		| tableitem					{ manage_lvalue_tableitem			(); }
+primary:lvalue						{ $$ = manage_primary_lvalue		($1);}
+		| call						{ $$ = manage_primary_call			($1);}
+		| tablemake					{ $$ = manage_primary_tablemake		($1);}
+		| '(' funcdef ')'			{ $$ = manage_primary_par_funcdef	($2);}
+		| const						{ $$ = manage_primary_const			($1);}
 		;
 
-tableitem: lvalue '.' ID			{ $$ = manage_tableitem_lvalue_dot_ID($1, $3); }
-		| lvalue '[' expr ']'		{ $$ = manage_tableitem_lvalue_brackets_expr($1, $3); }
-		| call '.' ID				{ manage_tableitem_call_dot_ID			(); }
-		| call '[' expr ']'			{ manage_tableitem_call_brackets_expr	(); }
+lvalue:	ID							{ $$ = manage_lvalue_ID				($1);}
+		| LOCAL ID					{ $$ = manage_lvalue_LOCAL_ID		($2);}
+		| DBLCOLON ID				{ $$ = manage_lvalue_DBLCOLON_ID	($2);}
+		| tableitem					{ manage_lvalue_tableitem			();  }
 		;
 
-/*call: lvalue callsuffix				{ $$ = manage_call_lvalue_callsuffix($1, $2);}
-
-==================================================================================== */
-call:	call '(' elist ')'			{ manage_call_call_elist_parenthesis(); }
-		| lvalue callsuffix			{ manage_call_lvalue_callsuffix		(); }
-		| '(' funcdef ')' '(' elist ')' { manage_call_funcdef_parenthesis_elist_parenthesis();}
+tableitem: lvalue '.' ID			{ $$ = manage_tableitem_lvalue_dot_ID($1, $3);}
+		| lvalue '[' expr ']'		{ $$ = manage_tableitem_lvalue_brackets_expr($1, $3);}
+		| call '.' ID				{ manage_tableitem_call_dot_ID			();}
+		| call '[' expr ']'			{ manage_tableitem_call_brackets_expr	();}
 		;
 
-callsuffix:	normcall				{ manage_callsuffix_normcall		(); }
-		| 	methodcall				{ manage_callsuffix_methodcall		(); }
+call:	call '(' elist ')'				{ $$ = manage_call_call_par_elist	($1, $3);}
+		| lvalue callsuffix				{ $$ = manage_call_lvalue_callsuffix($1, $2);}
+		| '(' funcdef ')' normcall		{ $$ = manage_call_par_funcdef_normcall($2, $4);}
 		;
 
-normcall:	'(' elist ')'			{ manage_normcall_elist_parenthesis	(); } ;
+callsuffix:	normcall				{ $$ = manage_callsuffix_normcall		($1);}
+		| 	methodcall				{ $$ = manage_callsuffix_methodcall		($1);}
+		;
 
-methodcall:	DBL_DOT ID '(' elist ')'{ manage_methodcall_DBL_DOT_ID_elist_parenthesis();}
+normcall:	'(' elist ')'			{ $$ = manage_normcall_par_elist		($2);}
+		;
+
+methodcall:	DBL_DOT ID '(' elist ')'{ $$ = manage_methodcall_DBL_DOT_ID_par_elist($2, $4);}
 		; 
 
 elist:		expr exprs				{ manage_elist_expr_exprs			(); }
@@ -145,8 +153,8 @@ exprs:		',' expr exprs			{ manage_exprs_comma_expr_exprs		(); }
 		| 	/* empty */				{ manage_exprs_empty				(); }
 		;
  
-tablemake:	'[' elist ']'			{ manage_tablemake_squarebr_elist	(); }
-		| 	'[' indexed ']'			{ manage_tablemake_squarebr_indexed	(); }
+tablemake:	'[' elist ']'			{ $$ = manage_tablemake_squarebr_elist	($2); }
+		| 	'[' indexed ']'			{ $$ = manage_tablemake_squarebr_indexed($2); }
 		;
 
 indexed: indexedelem indexedelems{ manage_indexed_indexedelem_indexedelems();};
@@ -186,20 +194,22 @@ const:	NUMBER						{ $$ = manage_const_NUMBER($1); 		}
 		| FALSE						{ $$ = manage_const_FALSE(); 			}
 		;
 
-idlist:	ID ids						{ manage_idlist_ID_ids				($1); }
+idlist:	ID ids						{ manage_idlist_ID_ids				($1);}
 		| /* empty */				{ manage_idlist_empty				(); }
 		;
 
-ids:	',' ID ids					{ manage_ids_comma_ID_ids			($2); }
-		| /* empty */				{manage_ids_empty					(); }
+ids:	',' ID ids					{ manage_ids_comma_ID_ids			($2);}
+		| /* empty */				{ manage_ids_empty					();}
 		; 
 
-ifstmt:	ifexpr ifsuffix				{ manage_ifstmt_ifexpr_ifsuffix(); };
+if:		ifprefix stmt				{ manage_if_ifprefix_stmt			($1);}
+		| ifprefix stmt elseprefix stmt	{ if_ifprefix_stmt_elseprefix_stmt($1, $3);}
+		;
 
-ifexpr: IF '(' expr ')'				{ manage_ifexpr_IF_expr_parenthesis($3); };
+ifprefix: IF '(' expr ')'			{ $$ = manage_ifprefix_IF_par_expr	($3);}
+		;
 
-ifsuffix: stmt ELSE stmt			{ manage_ifsuffix_stmt_ELSE_stmt(); }
-		| stmt						{ manage_ifsuffix_stmt(); }
+elseprefix: ELSE					{ $$ = manage_elseprefix_ELSE		();	}
 		;
 
 whilestmt:	WHILE '(' expr ')' stmt	{ manage_whilestmt_WHILE_expr_parenthesis_stmt(); 	};

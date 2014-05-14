@@ -10,6 +10,7 @@
 #include <assert.h>
 #include "IntStack.h"
 #include "SymbolTable.h"
+#include "ExprList.h"
 
 typedef enum EXPR_TYPE {
 	var_e,			tableitem_e,		programfunc_e,
@@ -20,17 +21,21 @@ typedef enum EXPR_TYPE {
 
 typedef struct Expr {
 	EXPR_TYPE			type;
-	struct Symbol*		sym;
-	struct Expr*		index;
+	struct Symbol *		sym;
+	struct Expr *		index;
 	double				numconst;
-	char*				strconst;
+	char *				strconst;
 	unsigned int		boolconst;
-	struct Expr*		next;
-	struct Expr*		previous;
+	struct Expr *		next;
+	struct Expr *		previous;
 	IntStack *			breaklist;
 	IntStack *			contlist;
 	IntStack *			truelist;
 	IntStack *			falselist;
+	int					method;
+	char *				name;
+	struct ExprList	*	elist;
+	struct ExprDblList*	dblelist;
 }Expr;
 
 Expr* newexpr 				(EXPR_TYPE t);

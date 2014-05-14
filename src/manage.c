@@ -64,8 +64,8 @@ void manage_stmt_expr(Expr * expr) {
 	resetTempVarCount();
 }
 
-void manage_stmt_ifstmt() {
-	printf("%d: stmt -> ifstmt\n",yylineno);
+void manage_stmt_if() {
+	printf("%d: stmt -> if\n",yylineno);
 }
 
 void manage_stmt_whilestmt() {
@@ -286,24 +286,29 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 }
 
 /********** primary **********/
-struct Expr * manage_primary_lvalue(Expr * lvalue) {
+struct Expr * manage_primary_lvalue (Expr * lvalue){
 	printf("%d: primary -> lvalue\n",yylineno);
 	return emit_iftableitem(lvalue);
 }
 
-void manage_primary_call() {
+Expr * manage_primary_call (Expr * call){
 	printf("%d: primary -> call\n",yylineno);
+	return call;
 }
 
-void manage_primary_tablemake() {
+Expr * manage_primary_tablemake (Expr * tablemake){
 	printf("%d: primary -> tablemake\n",yylineno);
+	return tablemake;
 }
 
-void manage_primary_funcdef_parenthesis() {
+Expr * manage_primary_par_funcdef (Symbol * funcdef){
 	printf("%d: primary -> '('function')'\n",yylineno);
+	Expr * primary = newexpr(programfunc_e);
+	primary->sym = funcdef;
+	return primary;
 }
 
-Expr * manage_primary_const(Expr * constant) {
+Expr * manage_primary_const (Expr * constant){
 	printf("%d: primary -> const\n",yylineno);
 	return constant;
 }
@@ -414,39 +419,66 @@ void manage_tableitem_call_brackets_expr() {
 }
 
 /********** call **********/
-void manage_call_call_elist_parenthesis() {
+Expr * manage_call_call_par_elist (Expr * call, ExprList * elist){
 	printf("%d: call -> call '(' elist ')'\n",yylineno);
+	
+	return make_call(call, elist);
 }
 
-void manage_call_lvalue_callsuffix() {
-	printf("%d: call -> lvalue callsaffix\n",yylineno);
+Expr * manage_call_lvalue_callsuffix (Expr * lvalue, Expr * callsuffix){
+	printf("%d: call -> lvalue callsuffix\n",yylineno);
+	assert(lvalue);
+	assert(callsuffix);
+	
+	if (callsuffix->method){
+		Expr * self = lvalue;
+		lvalue = emit_iftableitem(member_item(self, callsuffix->name));
+		addExprListFront(callsuffix->elist, self);
+	}
+	return make_call(lvalue, callsuffix->elist);
 }
 
-void manage_call_funcdef_parenthesis_elist_parenthesis() {
+Expr * manage_call_par_funcdef_normcall (Symbol * funcdef, Expr * normcall){
 	printf("%d: call -> '(' funcdef ')'\n",yylineno);
+	normcall->type = programfunc_e;
+	normcall->sym = funcdef;
 }
 
 /********** callsuffix **********/
-void manage_callsuffix_normcall() {
+Expr * manage_callsuffix_normcall (Expr * normcall){
 	printf("%d: callsuffix -> normcall\n",yylineno);
+	return normcall;
 }
 
-void manage_callsuffix_methodcall() {
+Expr * manage_callsuffix_methodcall (Expr * methodcall){
 	printf("%d: callsuffix -> methodcall\n",yylineno);
+	return methodcall;
 }
 
 /********** normcall **********/
-void manage_normcall_elist_parenthesis() {
+Expr * manage_normcall_par_elist (ExprList * elist){
 	printf("%d: normcall -> '('elist ')' \n",yylineno);
+	
+	Expr * normcall = newexpr(var_e); //TODO not sure. Isn't specified
+	normcall->elist = elist;
+	normcall->method = 0;
+	normcall->name = NULL;
+	return normcall;
 }
 
 /********** methodcall **********/
-void manage_methodcall_DBL_DOT_ID_elist_parenthesis() {
+Expr * manage_methodcall_DBL_DOT_ID_par_elist (char * id, ExprList * elist){
 	printf("%d: methodcall -> .. ID '('elist ')'\n",yylineno);
+	
+	Expr * methodcall = newexpr(var_e); //TODO not sure. Isn't specified
+	methodcall->elist = elist;
+	methodcall->method = 1;
+	methodcall->name = id;
+	return methodcall;
 }
 
 /********** elist **********/
-void manage_elist_expr_exprs() {
+void manage_elist_expr_exprs (){
 	printf("%d: elist -> expr exprs\n",yylineno);
 }
 
@@ -464,12 +496,35 @@ void manage_exprs_empty() {
 }
 
 /********** tablemake **********/
-void manage_tablemake_squarebr_elist() {
+Expr * manage_tablemake_squarebr_elist (ExprList * elist){
 	printf("%d: tablemake -> '[' elist ']'\n",yylineno);
+	assert(elist);
+	
+	Expr * t = newexpr(newtable_e);
+	t->sym = newtemp();
+	emit(tablecreate, t, NULL, NULL, 0);
+	int i =0;
+	ExprNode * cur = elist->tail;
+	while (cur->next != NULL){
+		emit(tablesetelem, t, newexpr_constnum(i++), cur->expr, 0);
+		cur = cur->next;
+	}
+	return t;
 }
 
-void manage_tablemake_squarebr_indexed() {
-	printf("%d: tablemake -> '[' indexed ']'\n",yylineno);
+Expr *  manage_tablemake_squarebr_indexed (ExprDblList * indexed){
+	printf("%d: tablemake -> '[' indexed ']'\n",yylineno);	
+	assert(indexed);
+	
+	Expr * t = newexpr(newtable_e);
+	t->sym = newtemp();
+	emit(tablecreate, t, NULL, NULL, 0);
+	ExprDblNode * cur = indexed->tail;
+	while (cur->next != NULL){
+		emit(tablesetelem, t, cur->key, cur->value, 0);
+		cur = cur->next;
+	}
+	return t;
 }
 
 /********** indexed **********/
@@ -637,40 +692,55 @@ void manage_ids_empty() {
 	printf("%d: ids -> empty \n",yylineno);
 }
 
-/********** ifstmt **********/
-void manage_ifstmt_ifexpr_ifsuffix(){	
-	printf("%d: ifstmt -> ifexpr ifsuffix\n",yylineno);
+/********** if **********/
+void manage_if_ifprefix_stmt (int ifprefix){	
+	printf("%d: if -> iprefix stmt\n",yylineno);
+	patchlabel(ifprefix, nextquadlabel());
 }
 
-/********** ifexpr **********/
-void manage_ifexpr_IF_expr_parenthesis(Expr * expr){
+void if_ifprefix_stmt_elseprefix_stmt (int ifprefix, int elseprefix){	
+	printf("%d: if -> iprefix stmt elseprefix stmt\n",yylineno);
+	patchlabel(ifprefix, elseprefix+1);
+	patchlabel(elseprefix, nextquadlabel());
+}
+
+/********** ifprefix **********/
+int manage_ifprefix_IF_par_expr (Expr * expr){
 	printf("%d: ifexpr ->IF '(' expr ')'\n",yylineno);
 	assert(expr);
 	
+//	// Savidis code below, I think not partial eval compatible
+//	emit(if_eq, expr, newexpr_constbool(1), NULL, nextquadlabel()+2);
+//	int ifprefix = nextquadlabel();
+//	emit(jump, NULL, NULL, NULL, 0);
+//	return ifprefix;
+	
+	// My code below
 	Expr * boolExprResult = newexpr(var_e);
 	boolExprResult->sym = newtemp();
 		
-	int assignTrueLabel  = nextquadlabel();
-	int assignFalseLabel = assignTrueLabel+2;
 	printf("truelist: "); printIntStack(expr->truelist); //TODO delete
 	printf("falselist: "); printIntStack(expr->falselist); //TODO delete
-	backpatch(expr->truelist,  assignTrueLabel);
-	backpatch(expr->falselist, assignFalseLabel);
 	
-	emit(assign, newexpr_constbool(1), NULL, boolExprResult, 0);
-	emit(jump, NULL, NULL, NULL, assignFalseLabel+1);
+	backpatch(expr->truelist,  nextquadlabel());
+	emit(assign, newexpr_constbool(1), NULL, boolExprResult, 0);	
+	emit(jump, NULL, NULL, NULL,nextquadlabel()+2);
+	
+	backpatch(expr->falselist, nextquadlabel());
 	emit(assign, newexpr_constbool(0), NULL, boolExprResult, 0);
-	emit(if_eq, newexpr_constbool(1), boolExprResult, NULL, assignFalseLabel+3);
-	emit(jump, NULL, NULL, NULL, 0); // TODO this jump needs to be backpatched after the stmt	
+	
+	emit(if_eq, newexpr_constbool(1), boolExprResult, NULL, nextquadlabel()+2);
+	emit(jump, NULL, NULL, NULL, 0);
+	
+	return nextquadlabel()-1;
 }
 
-/********** ifsuffix **********/
-void manage_ifsuffix_stmt_ELSE_stmt() {
-	printf("%d: ifsuffix -> stmt ELSE stmt\n",yylineno);
-}
-
-void manage_ifsuffix_stmt() {
-	printf("%d: ifsuffix -> stmt\n",yylineno);
+/********** elseprefix **********/
+int manage_elseprefix_ELSE (){
+	printf("%d: elseprefix -> ELSE\n",yylineno);
+	int elseprefix = nextquadlabel();
+	emit(jump, NULL, NULL, NULL, 0);
+	return elseprefix;
 }
 
 /********** whilestmt **********/
