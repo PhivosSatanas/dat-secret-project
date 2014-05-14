@@ -44,7 +44,7 @@ void  			manage_stmts_empty				();
 //stmt
 void  			manage_stmt_expr				(struct Expr *);
 void  			manage_stmt_if				();
-void  			manage_stmt_whilestmt			();
+void  			manage_stmt_while			();
 void  			manage_stmt_forstmt				();
 void  			manage_stmt_returnstmt			();
 void  			manage_stmt_BREAK				();
@@ -178,8 +178,10 @@ int				manage_ifprefix_IF_par_expr (struct Expr * expr);
 //elseprefix
 int				manage_elseprefix_ELSE ();
 
-//whilestmt
-void 			manage_whilestmt_WHILE_expr_parenthesis_stmt ();
+//while
+void			manage_while_whilestart_whilecond_stmt (int, int, struct Expr *);
+int				manage_whilestart_WHILE ();
+int				manage_whilecond_par_expr (struct Expr *);
 
 //forstmt
 void 			manage_forstmt_FOR();

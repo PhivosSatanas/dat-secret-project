@@ -33,6 +33,7 @@
 %token<realVal>			NUMBER
 %type<stringVal>		funcname	STR
 %type<intVal>			funcbody	M			ifprefix	elseprefix
+						whilestart	whilecond
 %type<SymbolVal>		funcdef		funcprefix
 %type<ExprListVal>		elist
 %type<ExprDblListVal>	indexed
@@ -62,9 +63,9 @@ stmts:	stmts stmt					{ manage_stmts_stmt					(); }
 		| /* empty */				{ manage_stmts_empty				(); }
 		;
 
-stmt:	expr';'						{ manage_stmt_expr				  ($1); }
-		| if						{ manage_stmt_if				(); }
-		| whilestmt					{ manage_stmt_whilestmt				(); }
+stmt:	expr';'						{ manage_stmt_expr				   ($1);}
+		| if						{ manage_stmt_if					(); }
+		| while						{ manage_stmt_while					(); }
 		| forstmt					{ manage_stmt_forstmt				(); }
 		| returnstmt				{ manage_stmt_returnstmt			(); }
 		| BREAK ';'					{ manage_stmt_BREAK					(); }
@@ -130,9 +131,9 @@ tableitem: lvalue '.' ID			{ $$ = manage_tableitem_lvalue_dot_ID($1, $3);}
 		| call '[' expr ']'			{ manage_tableitem_call_brackets_expr	();}
 		;
 
-call:	call '(' elist ')'				{ $$ = manage_call_call_par_elist	($1, $3);}
-		| lvalue callsuffix				{ $$ = manage_call_lvalue_callsuffix($1, $2);}
-		| '(' funcdef ')' normcall		{ $$ = manage_call_par_funcdef_normcall($2, $4);}
+call:	call '(' elist ')'			{ $$ = manage_call_call_par_elist	($1, $3);}
+		| lvalue callsuffix			{ $$ = manage_call_lvalue_callsuffix($1, $2);}
+		| '(' funcdef ')' normcall	{ $$ = manage_call_par_funcdef_normcall($2, $4);}
 		;
 
 callsuffix:	normcall				{ $$ = manage_callsuffix_normcall		($1);}
@@ -157,13 +158,13 @@ tablemake:	'[' elist ']'			{ $$ = manage_tablemake_squarebr_elist	($2); }
 		| 	'[' indexed ']'			{ $$ = manage_tablemake_squarebr_indexed($2); }
 		;
 
-indexed: indexedelem indexedelems{ manage_indexed_indexedelem_indexedelems();};
+indexed: indexedelem indexedelems	{ manage_indexed_indexedelem_indexedelems();};
 
 indexedelems:   ',' indexedelem indexedelems { manage_indexedelems_comma_indexedelem_indexedelems();}
 		| /* empty */				{ manage_indexedelems_empty			(); }
 		;
 
-indexedelem: '{' expr ':' expr '}' { manage_indexedelem_brackets_expr_column_expr();};
+indexedelem: '{' expr ':' expr '}'	{ manage_indexedelem_brackets_expr_column_expr();};
 
 block:		'{' { currentScope++; } stmts '}'
 			{
@@ -174,13 +175,13 @@ block:		'{' { currentScope++; } stmts '}'
 
 funcdef:	funcprefix funcargs funcbody { $$ = manage_funcdef_funcprefix_funcargs_funcbody($1, $3); };
 
-funcprefix: FUNCTION funcname { 
+funcprefix: FUNCTION funcname		{ 
 				$$ = manage_funcprefix_FUNCTION_funcname($2);
 				$$->iadress = nextquadlabel();
 			};
 
-funcname: ID { $$ = manage_funcname_ID($1); }
-		| /* empty */ { $$ = manage_funcname_empty(); }
+funcname: ID						{ $$ = manage_funcname_ID($1); }
+		| /* empty */				{ $$ = manage_funcname_empty(); }
 		;
 
 funcargs: '(' idlist ')' { manage_funcargs_PAR_idlist_PAR(); } ;
@@ -212,7 +213,14 @@ ifprefix: IF '(' expr ')'			{ $$ = manage_ifprefix_IF_par_expr	($3);}
 elseprefix: ELSE					{ $$ = manage_elseprefix_ELSE		();	}
 		;
 
-whilestmt:	WHILE '(' expr ')' stmt	{ manage_whilestmt_WHILE_expr_parenthesis_stmt(); 	};
+while:	whilestart whilecond stmt	{ manage_while_whilestart_whilecond_stmt($1, $2, $3);}
+		;
+
+whilestart: WHILE					{ $$ = manage_whilestart_WHILE		();}
+		;
+
+whilecond: '(' expr ')'				{ $$ = manage_whilecond_par_expr	($2);}
+		;
 
 forstmt:	FOR '(' elist ';' expr ';' elist ')' stmt { manage_forstmt_FOR(); 			};
 

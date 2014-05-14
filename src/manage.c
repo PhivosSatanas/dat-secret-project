@@ -68,8 +68,8 @@ void manage_stmt_if() {
 	printf("%d: stmt -> if\n",yylineno);
 }
 
-void manage_stmt_whilestmt() {
-	printf("%d: stmt -> whilestmt\n",yylineno);
+void manage_stmt_while() {
+	printf("%d: stmt -> while\n",yylineno);
 }
 
 void manage_stmt_forstmt() {
@@ -442,6 +442,7 @@ Expr * manage_call_par_funcdef_normcall (Symbol * funcdef, Expr * normcall){
 	printf("%d: call -> '(' funcdef ')'\n",yylineno);
 	normcall->type = programfunc_e;
 	normcall->sym = funcdef;
+	return normcall;
 }
 
 /********** callsuffix **********/
@@ -743,9 +744,28 @@ int manage_elseprefix_ELSE (){
 	return elseprefix;
 }
 
-/********** whilestmt **********/
-void manage_whilestmt_WHILE_expr_parenthesis_stmt() {
-	printf("%d: whilestmt-> WHILE '(' expr ')' stmt\n",yylineno);
+/********** while **********/
+void manage_while_whilestart_whilecond_stmt 
+		(int whilestart, int whilecond, Expr * stmt){
+	assert(stmt);
+	printf("%d: while -> whilestart whilecond stmt\n",yylineno);
+	emit(jump, NULL, NULL, NULL, whilestart);
+	patchlabel(whilecond, nextquadlabel());
+	//TODO uncomment when implemented break-contlists
+//	patchlabel(stmt->breaklist->top->value, nextquadlabel()); 
+//	patchlabel(stmt->contlist->top->value, whilestart);
+}
+
+int manage_whilestart_WHILE (){
+	return nextquadlabel();
+}
+
+int	manage_whilecond_par_expr (struct Expr * expr){
+	printf("%d: whilecond-> '(' expr ')'\n",yylineno);
+	emit(if_eq, expr, newexpr_constbool(1), NULL, nextquadlabel()+2);
+	int whilecond = nextquadlabel();
+	emit(jump, NULL, NULL, NULL, 0);
+	return whilecond;
 }
 
 /********** forstmt **********/
