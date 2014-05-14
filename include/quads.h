@@ -53,6 +53,7 @@ struct Expr * 	member_item 	(struct Expr *, char *);
 struct Expr *	make_call		(struct Expr *, struct ExprList *);
 IntStack *		makelist		(int i);
 void 			backpatch		(IntStack * list, unsigned label);
+void 			patchlabel		(unsigned quadNo, int label);
 int 			print_const 	(struct Expr * e);
 char* 			OPtoString 		(IOPCODE op);
 void 			printQuads		();

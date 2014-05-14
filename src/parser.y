@@ -32,7 +32,7 @@
 %token<stringVal>		ID
 %token<realVal>			NUMBER
 %type<stringVal>		funcname	STR
-%type<intVal>			funcbody	M
+%type<intVal>			funcbody	M			ifprefix	elseprefix
 %type<SymbolVal>		funcdef		funcprefix
 %type<ExprListVal>		elist
 %type<ExprDblListVal>	indexed
@@ -63,7 +63,7 @@ stmts:	stmts stmt					{ manage_stmts_stmt					(); }
 		;
 
 stmt:	expr';'						{ manage_stmt_expr				  ($1); }
-		| ifstmt					{ manage_stmt_ifstmt				(); }
+		| if						{ manage_stmt_if				(); }
 		| whilestmt					{ manage_stmt_whilestmt				(); }
 		| forstmt					{ manage_stmt_forstmt				(); }
 		| returnstmt				{ manage_stmt_returnstmt			(); }
@@ -194,20 +194,22 @@ const:	NUMBER						{ $$ = manage_const_NUMBER($1); 		}
 		| FALSE						{ $$ = manage_const_FALSE(); 			}
 		;
 
-idlist:	ID ids						{ manage_idlist_ID_ids				($1); }
+idlist:	ID ids						{ manage_idlist_ID_ids				($1);}
 		| /* empty */				{ manage_idlist_empty				(); }
 		;
 
-ids:	',' ID ids					{ manage_ids_comma_ID_ids			($2); }
-		| /* empty */				{manage_ids_empty					(); }
+ids:	',' ID ids					{ manage_ids_comma_ID_ids			($2);}
+		| /* empty */				{ manage_ids_empty					();}
 		; 
 
-ifstmt:	ifexpr ifsuffix				{ manage_ifstmt_ifexpr_ifsuffix(); };
+if:		ifprefix stmt				{ manage_if_ifprefix_stmt			($1);}
+		| ifprefix stmt elseprefix stmt	{ if_ifprefix_stmt_elseprefix_stmt($1, $3);}
+		;
 
-ifexpr: IF '(' expr ')'				{ manage_ifexpr_IF_expr_parenthesis($3); };
+ifprefix: IF '(' expr ')'			{ $$ = manage_ifprefix_IF_par_expr	($3);}
+		;
 
-ifsuffix: stmt ELSE stmt			{ manage_ifsuffix_stmt_ELSE_stmt(); }
-		| stmt						{ manage_ifsuffix_stmt(); }
+elseprefix: ELSE					{ $$ = manage_elseprefix_ELSE		();	}
 		;
 
 whilestmt:	WHILE '(' expr ')' stmt	{ manage_whilestmt_WHILE_expr_parenthesis_stmt(); 	};

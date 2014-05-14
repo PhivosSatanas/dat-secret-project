@@ -64,8 +64,8 @@ void manage_stmt_expr(Expr * expr) {
 	resetTempVarCount();
 }
 
-void manage_stmt_ifstmt() {
-	printf("%d: stmt -> ifstmt\n",yylineno);
+void manage_stmt_if() {
+	printf("%d: stmt -> if\n",yylineno);
 }
 
 void manage_stmt_whilestmt() {
@@ -692,40 +692,50 @@ void manage_ids_empty() {
 	printf("%d: ids -> empty \n",yylineno);
 }
 
-/********** ifstmt **********/
-void manage_ifstmt_ifexpr_ifsuffix(){	
-	printf("%d: ifstmt -> ifexpr ifsuffix\n",yylineno);
+/********** if **********/
+void manage_if_ifprefix_stmt (int ifprefix){	
+	printf("%d: if -> iprefix stmt\n",yylineno);
+	patchlabel(ifprefix, nextquadlabel());
 }
 
-/********** ifexpr **********/
-void manage_ifexpr_IF_expr_parenthesis(Expr * expr){
+void if_ifprefix_stmt_elseprefix_stmt (int ifprefix, int elseprefix){	
+	printf("%d: if -> iprefix stmt elseprefix stmt\n",yylineno);
+	patchlabel(ifprefix, elseprefix+1);
+	patchlabel(elseprefix, nextquadlabel());
+}
+
+/********** ifprefix **********/
+int manage_ifprefix_IF_par_expr (Expr * expr){
 	printf("%d: ifexpr ->IF '(' expr ')'\n",yylineno);
 	assert(expr);
 	
-	Expr * boolExprResult = newexpr(var_e);
-	boolExprResult->sym = newtemp();
-		
-	int assignTrueLabel  = nextquadlabel();
-	int assignFalseLabel = assignTrueLabel+2;
-	printf("truelist: "); printIntStack(expr->truelist); //TODO delete
-	printf("falselist: "); printIntStack(expr->falselist); //TODO delete
-	backpatch(expr->truelist,  assignTrueLabel);
-	backpatch(expr->falselist, assignFalseLabel);
+	emit(if_eq, expr, newexpr_constbool(1), NULL, nextquadlabel()+2);
+	int ifprefix = nextquadlabel();
+	emit(jump, NULL, NULL, NULL, 0);
+	return ifprefix;
 	
-	emit(assign, newexpr_constbool(1), NULL, boolExprResult, 0);
-	emit(jump, NULL, NULL, NULL, assignFalseLabel+1);
-	emit(assign, newexpr_constbool(0), NULL, boolExprResult, 0);
-	emit(if_eq, newexpr_constbool(1), boolExprResult, NULL, assignFalseLabel+3);
-	emit(jump, NULL, NULL, NULL, 0); // TODO this jump needs to be backpatched after the stmt	
+//	Expr * boolExprResult = newexpr(var_e);
+//	boolExprResult->sym = newtemp();
+//		
+//	int assignTrueLabel  = nextquadlabel();
+//	int assignFalseLabel = assignTrueLabel+2;
+//	printf("truelist: "); printIntStack(expr->truelist); //TODO delete
+//	printf("falselist: "); printIntStack(expr->falselist); //TODO delete
+//	backpatch(expr->truelist,  assignTrueLabel);
+//	backpatch(expr->falselist, assignFalseLabel);
+//	
+//	emit(assign, newexpr_constbool(1), NULL, boolExprResult, 0);
+//	emit(jump, NULL, NULL, NULL, assignFalseLabel+1);
+//	emit(assign, newexpr_constbool(0), NULL, boolExprResult, 0);
+//	emit(if_eq, newexpr_constbool(1), boolExprResult, NULL, assignFalseLabel+3);
+//	emit(jump, NULL, NULL, NULL, 0); // TODO this jump needs to be backpatched after the stmt	
 }
 
-/********** ifsuffix **********/
-void manage_ifsuffix_stmt_ELSE_stmt() {
-	printf("%d: ifsuffix -> stmt ELSE stmt\n",yylineno);
-}
-
-void manage_ifsuffix_stmt() {
-	printf("%d: ifsuffix -> stmt\n",yylineno);
+/********** elseprefix **********/
+int manage_elseprefix_ELSE (){
+	printf("%d: elseprefix -> ELSE\n",yylineno);
+	int elseprefix = nextquadlabel();
+	emit(jump, NULL, NULL, NULL, 0);
 }
 
 /********** whilestmt **********/

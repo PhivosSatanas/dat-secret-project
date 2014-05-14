@@ -99,6 +99,11 @@ void backpatch (IntStack * list, unsigned label){
 	}
 }
 
+
+void patchlabel (unsigned quadNo, int label){
+	quads[quadNo].label = label;
+}
+
 int print_const (Expr * e){
 	assert(e);
 	

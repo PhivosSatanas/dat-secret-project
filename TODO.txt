@@ -11,7 +11,6 @@
 	* problem with seeng include ExprDblList.h
 * IF, IF ELSE
 * WHILE, FOR
-* RETURN
 ============================ Optional Features ================================
 
 ? Join handler with manage
@@ -21,13 +20,14 @@
 
 ============================ Completed Features ===============================
 
+* RETURN
 # funcdef + offsets
 # primary -> ( funcdef )
 # assignexprs & storage expressions
 * BUGFIX: x = t.a.b.c; does not emit c (last tableitem)
-# AND OR NOT partial evauation (with truetest!)
-# RELOPs 
 # ARITHOPs
 # ++lvalue--
+# RELOPs 
+# AND OR NOT partial evauation (with truetest!)
 # tempsymbol reuse (extended)
 # Copy proper multiline comment handling from phase 1 to phase 3

@@ -43,7 +43,7 @@ void  			manage_stmts_empty				();
 
 //stmt
 void  			manage_stmt_expr				(struct Expr *);
-void  			manage_stmt_ifstmt				();
+void  			manage_stmt_if				();
 void  			manage_stmt_whilestmt			();
 void  			manage_stmt_forstmt				();
 void  			manage_stmt_returnstmt			();
@@ -161,25 +161,25 @@ struct Expr * 	manage_const_TRUE();
 struct Expr * 	manage_const_FALSE();
 
 //idlist
-void 			manage_idlist_ID_ids(char *);
-void 			manage_idlist_empty();
+void 			manage_idlist_ID_ids (char *);
+void 			manage_idlist_empty ();
 
 //ids
 void 			manage_ids_comma_ID_ids(char *);
-void 			manage_ids_empty();
+void 			manage_ids_empty ();
 
-//ifstmt
-void			manage_ifstmt_ifexpr_ifsuffix();
+//if
+void			manage_if_ifprefix_stmt (int);
+void			if_ifprefix_stmt_elseprefix_stmt (int, int);
 
-//ifexpr
-void			manage_ifexpr_IF_expr_parenthesis(struct Expr * expr);
+//ifprefix
+int				manage_ifprefix_IF_par_expr (struct Expr * expr);
 
-//ifsuffix
-void 			manage_ifsuffix_stmt_ELSE_stmt();
-void 			manage_ifsuffix_stmt();
+//elseprefix
+int				manage_elseprefix_ELSE ();
 
 //whilestmt
-void 			manage_whilestmt_WHILE_expr_parenthesis_stmt();
+void 			manage_whilestmt_WHILE_expr_parenthesis_stmt ();
 
 //forstmt
 void 			manage_forstmt_FOR();
@@ -190,7 +190,6 @@ void 			manage_returnstmt_RETURN_semicolon();
 
 // TEMPORARY VARIABLES
 void 			resetTempVarCount	();
-void 			patchlabel			(unsigned quadNo, int label);
 
 /*
  * Returns a Symbol pointer to a clean temporary variable (hidden or new).
