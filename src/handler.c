@@ -23,10 +23,11 @@ Expr* handle_expr_gr_expr (Expr* expr1, Expr* expr2){
 	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
+/*
 	// case {(a relop b) relop c} or {a relop (b relop c)}
 	if (	(expr1->type != var_e && istempexpr(expr1)) ||
 			(expr2->type != var_e && istempexpr(expr2))
-			){
+			){ // TODO it emits for {x+y >= z-w} when it shouldn't
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -34,6 +35,7 @@ Expr* handle_expr_gr_expr (Expr* expr1, Expr* expr2){
 		emit(jump, NULL, NULL, NULL, nextQuad+3);
 		emit(assign, newexpr_constbool(0), NULL, E, 0);
 	}
+*/
 	
 	pushInt(E->truelist, nextquadlabel());
 	emit(if_greater, expr1, expr2, NULL, 0);
@@ -54,10 +56,11 @@ Expr* handle_expr_gr_eq_expr (Expr* expr1, Expr* expr2){
 	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
+/*
 	// case {(a relop b) relop c} or {a relop (b relop c)}
 	if (	(expr1->type != var_e && istempexpr(expr1)) ||
 			(expr2->type != var_e && istempexpr(expr2))
-			){
+			){ // TODO it emits for {x+y >= z-w} when it shouldn't
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -65,9 +68,10 @@ Expr* handle_expr_gr_eq_expr (Expr* expr1, Expr* expr2){
 		emit(jump, NULL, NULL, NULL, nextQuad+3);
 		emit(assign, newexpr_constbool(0), NULL, E, 0);
 	}
+*/
 	
 	pushInt(E->truelist, nextquadlabel());
-	emit(if_greatereq, expr1, expr2, NULL, 0);
+	emit(if_greatereq, expr1, expr2, NULL, 0); //TODO lect11/6 say emit(relop), assign false, jump, assign false
 	pushInt(E->falselist, nextquadlabel());
 	emit(jump, NULL, NULL, NULL, 0);
 	
@@ -85,10 +89,11 @@ Expr* handle_expr_ls_expr (Expr* expr1, Expr* expr2){
 	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
+/*
 	// case {(a relop b) relop c} or {a relop (b relop c)}
 	if (	(expr1->type != var_e && istempexpr(expr1)) ||
 			(expr2->type != var_e && istempexpr(expr2))
-			){
+			){ // TODO it emits for {x+y >= z-w} when it shouldn't
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -96,6 +101,7 @@ Expr* handle_expr_ls_expr (Expr* expr1, Expr* expr2){
 		emit(jump, NULL, NULL, NULL, nextQuad+3);
 		emit(assign, newexpr_constbool(0), NULL, E, 0);
 	}
+*/
 	
 	pushInt(E->truelist, nextquadlabel());
 	emit(if_less, expr1, expr2, NULL, 0);
@@ -116,10 +122,11 @@ Expr* handle_expr_ls_eq_expr (Expr* expr1, Expr* expr2){
 	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
+/*
 	// case {(a relop b) relop c} or {a relop (b relop c)}
 	if (	(expr1->type != var_e && istempexpr(expr1)) ||
 			(expr2->type != var_e && istempexpr(expr2))
-			){
+			){ // TODO it emits for {x+y >= z-w} when it shouldn't
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -127,6 +134,7 @@ Expr* handle_expr_ls_eq_expr (Expr* expr1, Expr* expr2){
 		emit(jump, NULL, NULL, NULL, nextQuad+3);
 		emit(assign, newexpr_constbool(0), NULL, E, 0);
 	}
+*/
 	
 	pushInt(E->truelist, nextquadlabel());
 	emit(if_lesseq, expr1, expr2, NULL, 0);
@@ -147,10 +155,11 @@ Expr* handle_expr_eq_expr (Expr* expr1, Expr* expr2){
 	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
+/*
 	// case {(a relop b) relop c} or {a relop (b relop c)}
 	if (	(expr1->type != var_e && istempexpr(expr1)) ||
 			(expr2->type != var_e && istempexpr(expr2))
-			){
+			){ // TODO it emits for {x+y >= z-w} when it shouldn't
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -158,6 +167,7 @@ Expr* handle_expr_eq_expr (Expr* expr1, Expr* expr2){
 		emit(jump, NULL, NULL, NULL, nextQuad+3);
 		emit(assign, newexpr_constbool(0), NULL, E, 0);
 	}
+*/
 	
 	pushInt(E->truelist, nextquadlabel());
 	emit(if_eq, expr1, expr2, NULL, 0);
@@ -178,10 +188,11 @@ Expr* handle_expr_not_eq_expr (Expr* expr1, Expr* expr2){
 	E->truelist = mergeIntStacks(expr1->truelist, expr2->truelist);
 	E->falselist = mergeIntStacks(expr1->falselist, expr2->falselist);	
 	
+/*
 	// case {(a relop b) relop c} or {a relop (b relop c)}
 	if (	(expr1->type != var_e && istempexpr(expr1)) ||
 			(expr2->type != var_e && istempexpr(expr2))
-			){
+			){ // TODO it emits for {x+y >= z-w} when it shouldn't
 		int nextQuad = nextquadlabel();
 		backpatch(E->truelist, nextQuad);
 		backpatch(E->falselist, nextQuad+2);
@@ -189,6 +200,7 @@ Expr* handle_expr_not_eq_expr (Expr* expr1, Expr* expr2){
 		emit(jump, NULL, NULL, NULL, nextQuad+3);
 		emit(assign, newexpr_constbool(0), NULL, E, 0);
 	}
+*/
 	
 	pushInt(E->truelist, nextquadlabel());
 	emit(if_noteq, expr1, expr2, NULL, 0);

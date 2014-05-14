@@ -5,17 +5,27 @@
 
 ============================ Required Features ================================
 * BUGFIX: x = t.a.b.c; does not emit c (last tableitem)
-* Breaklist & error case Error2.asc
-* Continuelist & error case Error2.asc
-* AND OR NOT RELOP
-
+* Breaklist, Continuelist & error case Error2.asc
+* call, methodcall
+* tablemake
+* primary -> (funcdef)
+* IF, IF ELSE
+* WHILE, FOR
+* RETURN
 ============================ Optional Features ================================
 
 ? Join handler with manage
-? Copy proper multiline comment handling from phase 1 to phase 3
 ? Copy Main() code that handles optional program call parameters
 ? In Makefile if obj folder not exists create it
+? Cleanup, prints, TODOs and shit
 
 ============================ Completed Features ===============================
 
-
+# funcdef + offsets
+# assignexprs & ekfraseis apo8hkeyshs
+# AND OR NOT partial evauation (with truetest!)
+# RELOPs 
+# ARITHOPs
+# ++lvalue--
+# tempsymbol reuse (extended)
+# Copy proper multiline comment handling from phase 1 to phase 3

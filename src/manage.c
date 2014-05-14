@@ -253,7 +253,7 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 		}	
 		else{
 			assignexpr = newexpr(assignexpr_e);
-			assignexpr->sym = istempexpr(expr) ? expr->sym : newtemp();
+			assignexpr->sym = istempexpr(expr) ? expr->sym : newtemp(); //TODO just newtemp()? lect10/23
 			assignexpr->truelist = expr->truelist;
 			assignexpr->falselist = expr->falselist;
 			if (expr->type == boolexpr_e){ //TODO every parser rule that has expr must have this if
@@ -267,7 +267,7 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 				emit(assign, newexpr_constbool(0), NULL, assignexpr, 0);
 			}
 			else if (expr->type == boolconst_e && expr->boolconst == 1){				
-				backpatch(expr->truelist,  nextquadlabel()); // TODO check fi patching correctly
+				backpatch(expr->truelist,  nextquadlabel());
 			}
 			else if (expr->type == boolconst_e && expr->boolconst == 0){				
 				backpatch(expr->falselist,  nextquadlabel());
