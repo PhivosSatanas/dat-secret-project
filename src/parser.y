@@ -30,7 +30,7 @@
 %type<stringVal>	funcname	STR
 %type<intVal>		funcbody	M
 %type<symbolVal> 	funcdef		funcprefix
-%type<exprVal>		lvalue		member		primary		assignexpr
+%type<exprVal>		lvalue		tableitem	primary		assignexpr
 					call		term		tablemake	const	
 					expr		elist		stmts		stmt		
 					BREAK		CONTINUE
@@ -111,15 +111,18 @@ primary:lvalue						{ $$ = manage_primary_lvalue($1); 		}
 lvalue:	ID							{ $$ = manage_lvalue_ID				($1); }
 		| LOCAL ID					{ $$ = manage_lvalue_LOCAL_ID		($2); }
 		| DBLCOLON ID				{ $$ = manage_lvalue_DBLCOLON_ID	($2); }
-		| member					{ manage_lvalue_member				(); }
+		| tableitem					{ manage_lvalue_tableitem			(); }
 		;
 
-member:	lvalue '.' ID				{ $$ = manage_member_lvalue_dot_ID	($1, $3); }
-		| lvalue '[' expr ']'		{ $$ = manage_member_lvalue_brackets_expr($1, $3); }
-		| call '.' ID				{ manage_member_call_dot_ID			(); }
-		| call '[' expr ']'			{ manage_member_call_brackets_expr	(); }
+tableitem: lvalue '.' ID			{ $$ = manage_tableitem_lvalue_dot_ID($1, $3); }
+		| lvalue '[' expr ']'		{ $$ = manage_tableitem_lvalue_brackets_expr($1, $3); }
+		| call '.' ID				{ manage_tableitem_call_dot_ID			(); }
+		| call '[' expr ']'			{ manage_tableitem_call_brackets_expr	(); }
 		;
 
+/*call: lvalue callsuffix				{ $$ = manage_call_lvalue_callsuffix($1, $2);}
+
+==================================================================================== */
 call:	call '(' elist ')'			{ manage_call_call_elist_parenthesis(); }
 		| lvalue callsuffix			{ manage_call_lvalue_callsuffix		(); }
 		| '(' funcdef ')' '(' elist ')' { manage_call_funcdef_parenthesis_elist_parenthesis();}

@@ -66,12 +66,12 @@ Grammar
    46 lvalue: ID
    47       | LOCAL ID
    48       | DBLCOLON ID
-   49       | member
+   49       | tableitem
 
-   50 member: lvalue '.' ID
-   51       | lvalue '[' expr ']'
-   52       | call '.' ID
-   53       | call '[' expr ']'
+   50 tableitem: lvalue '.' ID
+   51          | lvalue '[' expr ']'
+   52          | call '.' ID
+   53          | call '[' expr ']'
 
    54 call: call '(' elist ')'
    55     | lvalue callsuffix
@@ -219,7 +219,7 @@ primary (58)
     on left: 41 42 43 44 45, on right: 39
 lvalue (59)
     on left: 46 47 48 49, on right: 35 36 37 38 40 41 50 51 55
-member (60)
+tableitem (60)
     on left: 50 51 52 53, on right: 49
 call (61)
     on left: 54 55 56, on right: 42 52 53 54
@@ -331,7 +331,7 @@ State 2
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     block       go to state 38
@@ -404,7 +404,7 @@ State 8
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -436,7 +436,7 @@ State 9
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -518,9 +518,9 @@ State 19
     ID        shift, and go to state 22
     '('       shift, and go to state 59
 
-    lvalue  go to state 60
-    member  go to state 35
-    call    go to state 61
+    lvalue     go to state 60
+    tableitem  go to state 35
+    call       go to state 61
 
 
 State 20
@@ -532,9 +532,9 @@ State 20
     ID        shift, and go to state 22
     '('       shift, and go to state 59
 
-    lvalue  go to state 62
-    member  go to state 35
-    call    go to state 61
+    lvalue     go to state 62
+    tableitem  go to state 35
+    call       go to state 61
 
 
 State 21
@@ -582,7 +582,7 @@ State 24
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -616,7 +616,7 @@ State 25
     assignexpr   go to state 32
     primary      go to state 33
     lvalue       go to state 34
-    member       go to state 35
+    tableitem    go to state 35
     call         go to state 36
     elist        go to state 66
     tablemake    go to state 37
@@ -652,7 +652,7 @@ State 26
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     funcdef     go to state 70
@@ -743,8 +743,8 @@ State 34
    38     | lvalue . MINUS_MINUS
    40 assignexpr: lvalue . '=' expr
    41 primary: lvalue .
-   50 member: lvalue . '.' ID
-   51       | lvalue . '[' expr ']'
+   50 tableitem: lvalue . '.' ID
+   51          | lvalue . '[' expr ']'
    55 call: lvalue . callsuffix
 
     PLUS_PLUS    shift, and go to state 86
@@ -764,7 +764,7 @@ State 34
 
 State 35
 
-   49 lvalue: member .
+   49 lvalue: tableitem .
 
     $default  reduce using rule 49 (lvalue)
 
@@ -772,8 +772,8 @@ State 35
 State 36
 
    42 primary: call .
-   52 member: call . '.' ID
-   53       | call . '[' expr ']'
+   52 tableitem: call . '.' ID
+   53          | call . '[' expr ']'
    54 call: call . '(' elist ')'
 
     '.'  shift, and go to state 96
@@ -863,7 +863,7 @@ State 43
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     block       go to state 38
@@ -923,7 +923,7 @@ State 47
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -953,7 +953,7 @@ State 48
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -985,7 +985,7 @@ State 49
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     elist       go to state 105
     tablemake   go to state 37
@@ -1107,8 +1107,8 @@ State 59
 State 60
 
    35 term: PLUS_PLUS lvalue .
-   50 member: lvalue . '.' ID
-   51       | lvalue . '[' expr ']'
+   50 tableitem: lvalue . '.' ID
+   51          | lvalue . '[' expr ']'
    55 call: lvalue . callsuffix
 
     '.'      shift, and go to state 89
@@ -1125,8 +1125,8 @@ State 60
 
 State 61
 
-   52 member: call . '.' ID
-   53       | call . '[' expr ']'
+   52 tableitem: call . '.' ID
+   53          | call . '[' expr ']'
    54 call: call . '(' elist ')'
 
     '.'  shift, and go to state 96
@@ -1137,8 +1137,8 @@ State 61
 State 62
 
    37 term: MINUS_MINUS lvalue .
-   50 member: lvalue . '.' ID
-   51       | lvalue . '[' expr ']'
+   50 tableitem: lvalue . '.' ID
+   51          | lvalue . '[' expr ']'
    55 call: lvalue . callsuffix
 
     '.'      shift, and go to state 89
@@ -1197,7 +1197,7 @@ State 64
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1339,7 +1339,7 @@ State 72
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1369,7 +1369,7 @@ State 73
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1399,7 +1399,7 @@ State 74
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1429,7 +1429,7 @@ State 75
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1477,7 +1477,7 @@ State 78
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1507,7 +1507,7 @@ State 79
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1537,7 +1537,7 @@ State 80
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1567,7 +1567,7 @@ State 81
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1597,7 +1597,7 @@ State 82
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1627,7 +1627,7 @@ State 83
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1657,7 +1657,7 @@ State 84
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1708,7 +1708,7 @@ State 88
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1716,7 +1716,7 @@ State 88
 
 State 89
 
-   50 member: lvalue '.' . ID
+   50 tableitem: lvalue '.' . ID
 
     ID  shift, and go to state 132
 
@@ -1730,7 +1730,7 @@ State 90
 
 State 91
 
-   51 member: lvalue '[' . expr ']'
+   51 tableitem: lvalue '[' . expr ']'
 
     NOT          shift, and go to state 8
     LOCAL        shift, and go to state 12
@@ -1752,7 +1752,7 @@ State 91
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1784,7 +1784,7 @@ State 92
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     elist       go to state 135
     tablemake   go to state 37
@@ -1814,14 +1814,14 @@ State 95
 
 State 96
 
-   52 member: call '.' . ID
+   52 tableitem: call '.' . ID
 
     ID  shift, and go to state 136
 
 
 State 97
 
-   53 member: call '[' . expr ']'
+   53 tableitem: call '[' . expr ']'
 
     NOT          shift, and go to state 8
     LOCAL        shift, and go to state 12
@@ -1843,7 +1843,7 @@ State 97
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -1875,7 +1875,7 @@ State 98
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     elist       go to state 138
     tablemake   go to state 37
@@ -2065,7 +2065,7 @@ State 109
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -2163,7 +2163,7 @@ State 117
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     block       go to state 38
@@ -2329,7 +2329,7 @@ State 122
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -2359,7 +2359,7 @@ State 123
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -2571,9 +2571,9 @@ State 131
 
 State 132
 
-   50 member: lvalue '.' ID .
+   50 tableitem: lvalue '.' ID .
 
-    $default  reduce using rule 50 (member)
+    $default  reduce using rule 50 (tableitem)
 
 
 State 133
@@ -2598,7 +2598,7 @@ State 134
    27     | expr . NOT_EQ expr
    28     | expr . AND M expr
    29     | expr . OR M expr
-   51 member: lvalue '[' expr . ']'
+   51 tableitem: lvalue '[' expr . ']'
 
     EQ          shift, and go to state 72
     NOT_EQ      shift, and go to state 73
@@ -2625,9 +2625,9 @@ State 135
 
 State 136
 
-   52 member: call '.' ID .
+   52 tableitem: call '.' ID .
 
-    $default  reduce using rule 52 (member)
+    $default  reduce using rule 52 (tableitem)
 
 
 State 137
@@ -2645,7 +2645,7 @@ State 137
    27     | expr . NOT_EQ expr
    28     | expr . AND M expr
    29     | expr . OR M expr
-   53 member: call '[' expr . ']'
+   53 tableitem: call '[' expr . ']'
 
     EQ          shift, and go to state 72
     NOT_EQ      shift, and go to state 73
@@ -2738,7 +2738,7 @@ State 143
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     block       go to state 38
@@ -2795,7 +2795,7 @@ State 145
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     block       go to state 38
@@ -2833,7 +2833,7 @@ State 146
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -2870,7 +2870,7 @@ State 148
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     const       go to state 41
@@ -2950,7 +2950,7 @@ State 151
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     elist       go to state 169
     tablemake   go to state 37
@@ -3055,7 +3055,7 @@ State 155
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     elist       go to state 170
     tablemake   go to state 37
@@ -3064,9 +3064,9 @@ State 155
 
 State 156
 
-   51 member: lvalue '[' expr ']' .
+   51 tableitem: lvalue '[' expr ']' .
 
-    $default  reduce using rule 51 (member)
+    $default  reduce using rule 51 (tableitem)
 
 
 State 157
@@ -3078,9 +3078,9 @@ State 157
 
 State 158
 
-   53 member: call '[' expr ']' .
+   53 tableitem: call '[' expr ']' .
 
-    $default  reduce using rule 53 (member)
+    $default  reduce using rule 53 (tableitem)
 
 
 State 159
@@ -3256,7 +3256,7 @@ State 172
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     elist       go to state 177
     tablemake   go to state 37
@@ -3334,7 +3334,7 @@ State 178
     assignexpr  go to state 32
     primary     go to state 33
     lvalue      go to state 34
-    member      go to state 35
+    tableitem   go to state 35
     call        go to state 36
     tablemake   go to state 37
     block       go to state 38

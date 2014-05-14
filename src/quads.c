@@ -37,7 +37,7 @@ void emit (
 }
 
 Expr * emit_iftableitem (Expr * e){
-	printf("e->type = %d\n", e->type); //TODO delete
+	assert(e);
 	if (e->type != tableitem_e){
 		printf("%s is NOT tableitem\n", e->sym->name); //TODO delete
 		return e;

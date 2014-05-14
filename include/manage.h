@@ -94,13 +94,13 @@ struct Expr *	manage_primary_const			(struct Expr *);
 struct Expr * 	manage_lvalue_ID				(char *);
 struct Expr * 	manage_lvalue_LOCAL_ID			(char *);
 struct Expr * 	manage_lvalue_DBLCOLON_ID		(char *);
-void 			manage_lvalue_member			();
+void 			manage_lvalue_tableitem			();
 
-//member
-struct Expr * 	manage_member_lvalue_dot_ID		(struct Expr *, char *);
-struct Expr * 	manage_member_lvalue_brackets_expr(struct Expr *, struct Expr *);
-void 			manage_member_call_dot_ID		();
-void 			manage_member_call_brackets_expr();
+//tableitem
+struct Expr * 	manage_tableitem_lvalue_dot_ID	(struct Expr *, char *);
+struct Expr * 	manage_tableitem_lvalue_brackets_expr(struct Expr *, struct Expr *);
+void 			manage_tableitem_call_dot_ID	();
+void 			manage_tableitem_call_brackets_expr();
 
 //call
 void 			manage_call_call_elist_parenthesis();

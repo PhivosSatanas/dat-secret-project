@@ -253,7 +253,7 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 		}	
 		else{
 			assignexpr = newexpr(assignexpr_e);
-			assignexpr->sym = istempexpr(expr) ? expr->sym : newtemp(); //TODO just newtemp()? lect10/23
+			assignexpr->sym = newtemp();
 			assignexpr->truelist = expr->truelist;
 			assignexpr->falselist = expr->falselist;
 			if (expr->type == boolexpr_e){ //TODO every parser rule that has expr must have this if
@@ -288,7 +288,7 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 /********** primary **********/
 struct Expr * manage_primary_lvalue(Expr * lvalue) {
 	printf("%d: primary -> lvalue\n",yylineno);
-	return lvalue;
+	return emit_iftableitem(lvalue);
 }
 
 void manage_primary_call() {
@@ -380,36 +380,36 @@ struct Expr * manage_lvalue_DBLCOLON_ID(char * tempId) {
 	return NULL;
 }
 
-void manage_lvalue_member() {
-	printf("%d: lvalue -> member\n",yylineno);
+void manage_lvalue_tableitem() {
+	printf("%d: lvalue -> tableitem\n",yylineno);
 }
 
-/********** member **********/
-Expr * manage_member_lvalue_dot_ID(Expr * lvalue, char * ID) {
+/********** tableitem **********/
+Expr * manage_tableitem_lvalue_dot_ID(Expr * lvalue, char * ID) {
 	printf("%d: memebr -> lvalue . ID\n",yylineno);
 	assert(lvalue);
 	assert(ID);
 
-	return member_item (lvalue, ID);
+	return member_item(lvalue, ID);
 }
 
-Expr * manage_member_lvalue_brackets_expr(Expr * lvalue, Expr * expr) {
+Expr * manage_tableitem_lvalue_brackets_expr(Expr * lvalue, Expr * expr) {
 	printf("%d: memebr -> lvalue '[' expr ']'\n", yylineno);
 	assert(lvalue);
 	assert(expr);
 
 	lvalue = emit_iftableitem (lvalue);
-	Expr* e = newexpr(tableitem_e);
-	e->sym = lvalue->sym;
-	e->index = expr;
-	return e;
+	Expr* tableitem = newexpr(tableitem_e);
+	tableitem->sym = lvalue->sym;
+	tableitem->index = expr;
+	return tableitem;
 }
 
-void manage_member_call_dot_ID() {
+void manage_tableitem_call_dot_ID() {
 	printf("%d: memebr -> call . ID\n",yylineno);
 }
 
-void manage_member_call_brackets_expr() {
+void manage_tableitem_call_brackets_expr() {
 	printf("%d: memebr -> call '[' expr ']'\n",yylineno);
 }
 
