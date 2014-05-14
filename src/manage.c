@@ -80,11 +80,11 @@ void manage_stmt_returnstmt() {
 	printf("%d: stmt -> returnstmt\n",yylineno);
 }
 
-void manage_stmt_BREAK() {
+void manage_stmt_brk() {
 	printf("%d: stmt -> break\n",yylineno);
 }
 
-void manage_stmt_CONTINUE() {
+void manage_stmt_cntnue() {
 	printf("%d: stmt -> continue\n",yylineno);
 }
 
@@ -790,6 +790,24 @@ void manage_returnstmt_RETURN_semicolon() {
 				yylineno);
 	}
 	emit(ret, NULL, NULL, NULL, 0);
+}
+
+/********** break **********/
+struct Expr * manage_break_BREAK (){
+	printf("%d: break -> BREAK ';'\n",yylineno);	
+	Expr * brk = newexpr(break_e);
+	pushInt(brk->breaklist, nextquadlabel());
+	emit(jump, NULL, NULL, NULL, 0);
+	return brk;
+}
+
+/********** continue **********/
+struct Expr * manage_continue_CONTINUE (){
+	printf("%d: continue -> CONTINUE ';'\n",yylineno);	
+	Expr * cntnue = newexpr(continue_e);
+	pushInt(cntnue->contlist, nextquadlabel());
+	emit(jump, NULL, NULL, NULL, 0);
+	return cntnue;	
 }
 
 /********** Temporary Variables **********/

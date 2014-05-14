@@ -43,12 +43,12 @@ void  			manage_stmts_empty				();
 
 //stmt
 void  			manage_stmt_expr				(struct Expr *);
-void  			manage_stmt_if				();
-void  			manage_stmt_while			();
+void  			manage_stmt_if					();
+void  			manage_stmt_while				();
 void  			manage_stmt_forstmt				();
 void  			manage_stmt_returnstmt			();
-void  			manage_stmt_BREAK				();
-void  			manage_stmt_CONTINUE			();
+void  			manage_stmt_brk					();
+void  			manage_stmt_cntnue			();
 void  			manage_stmt_block				();
 void 			manage_stmt_funcdef				();
 void 			manage_stmt_UNRECOGNIZED		();
@@ -189,6 +189,12 @@ void 			manage_forstmt_FOR();
 //returnstmt
 void 			manage_returnstmt_RETURN_expr_semicolon(struct Expr *);
 void 			manage_returnstmt_RETURN_semicolon();
+
+//break
+struct Expr *	manage_break_BREAK ();
+
+//continue
+struct Expr *	manage_continue_CONTINUE ();
 
 // TEMPORARY VARIABLES
 void 			resetTempVarCount	();

@@ -40,7 +40,7 @@
 %type<ExprVal>			lvalue		tableitem	primary		assignexpr
 						call		callsuffix	normcall	methodcall
 						term		tablemake	const		expr
-						stmts		stmt		BREAK		CONTINUE
+						stmts		stmt		break		continue
 
 %left	'='
 %left	OR
@@ -68,8 +68,8 @@ stmt:	expr';'						{ manage_stmt_expr				   ($1);}
 		| while						{ manage_stmt_while					(); }
 		| forstmt					{ manage_stmt_forstmt				(); }
 		| returnstmt				{ manage_stmt_returnstmt			(); }
-		| BREAK ';'					{ manage_stmt_BREAK					(); }
-		| CONTINUE ';'				{ manage_stmt_CONTINUE				(); }
+		| break 					{ manage_stmt_brk					(); }
+		| continue					{ manage_stmt_cntnue				(); }
 		| block						{ manage_stmt_block					(); }
 		| funcdef					{ manage_stmt_funcdef				(); }
 		| UNRECOGNIZED				{ manage_stmt_UNRECOGNIZED			(); }
@@ -167,36 +167,40 @@ indexedelems:   ',' indexedelem indexedelems { manage_indexedelems_comma_indexed
 indexedelem: '{' expr ':' expr '}'	{ manage_indexedelem_brackets_expr_column_expr();};
 
 block:		'{' { currentScope++; } stmts '}'
-			{
-				hide();
-				currentScope--;
-				manage_block_brackets_stmts();
-			};
+									{
+										hide();
+										currentScope--;
+										manage_block_brackets_stmts();
+									}
+		;
 
 funcdef:	funcprefix funcargs funcbody { $$ = manage_funcdef_funcprefix_funcargs_funcbody($1, $3); };
 
 funcprefix: FUNCTION funcname		{ 
-				$$ = manage_funcprefix_FUNCTION_funcname($2);
-				$$->iadress = nextquadlabel();
-			};
-
-funcname: ID						{ $$ = manage_funcname_ID($1); }
-		| /* empty */				{ $$ = manage_funcname_empty(); }
+										$$ = manage_funcprefix_FUNCTION_funcname($2);
+										$$->iadress = nextquadlabel();
+									}
 		;
 
-funcargs: '(' idlist ')' { manage_funcargs_PAR_idlist_PAR(); } ;
+funcname: ID						{ $$ = manage_funcname_ID			($1);}
+		| /* empty */				{ $$ = manage_funcname_empty		();	 }
+		;
 
-funcbody: block { manage_funcbody_block(&$$); } ;
+funcargs: '(' idlist ')'			{ manage_funcargs_PAR_idlist_PAR	();  }
+		;
 
-const:	NUMBER						{ $$ = manage_const_NUMBER($1); 		}
-		| STR						{ $$ = manage_const_STR($1); 			}
-		| NIL						{ $$ = manage_const_NIL(); 				}
-		| TRUE						{ $$ = manage_const_TRUE(); 			}
-		| FALSE						{ $$ = manage_const_FALSE(); 			}
+funcbody: block						{ manage_funcbody_block				(&$$);}
+		;
+
+const:	NUMBER						{ $$ = manage_const_NUMBER			($1);}
+		| STR						{ $$ = manage_const_STR				($1);}
+		| NIL						{ $$ = manage_const_NIL				();  }
+		| TRUE						{ $$ = manage_const_TRUE			();  }
+		| FALSE						{ $$ = manage_const_FALSE			();  }
 		;
 
 idlist:	ID ids						{ manage_idlist_ID_ids				($1);}
-		| /* empty */				{ manage_idlist_empty				(); }
+		| /* empty */				{ manage_idlist_empty				();  }
 		;
 
 ids:	',' ID ids					{ manage_ids_comma_ID_ids			($2);}
@@ -210,24 +214,30 @@ if:		ifprefix stmt				{ manage_if_ifprefix_stmt			($1);}
 ifprefix: IF '(' expr ')'			{ $$ = manage_ifprefix_IF_par_expr	($3);}
 		;
 
-elseprefix: ELSE					{ $$ = manage_elseprefix_ELSE		();	}
+elseprefix: ELSE					{ $$ = manage_elseprefix_ELSE		();	 }
 		;
 
 while:	whilestart whilecond stmt	{ manage_while_whilestart_whilecond_stmt($1, $2, $3);}
 		;
 
-whilestart: WHILE					{ $$ = manage_whilestart_WHILE		();}
+whilestart: WHILE					{ $$ = manage_whilestart_WHILE		();  }
 		;
 
 whilecond: '(' expr ')'				{ $$ = manage_whilecond_par_expr	($2);}
 		;
 
-forstmt:	FOR '(' elist ';' expr ';' elist ')' stmt { manage_forstmt_FOR(); 			};
-
-returnstmt:	RETURN expr ';'			{ manage_returnstmt_RETURN_expr_semicolon($2); 		}
-		| RETURN ';'				{ manage_returnstmt_RETURN_semicolon(); 			}
+forstmt:	FOR '(' elist ';' expr ';' elist ')' stmt { manage_forstmt_FOR();}
 		;
 
+returnstmt:	RETURN expr ';'			{ manage_returnstmt_RETURN_expr_semicolon($2);}
+		| RETURN ';'				{ manage_returnstmt_RETURN_semicolon(); }
+		;
+
+break:	BREAK ';'					{ $$ = manage_break_BREAK			();	}
+		;
+
+continue: CONTINUE ';'				{ $$ = manage_continue_CONTINUE		();	}
+		;
 
 %%
 

@@ -16,7 +16,8 @@ typedef enum EXPR_TYPE {
 	var_e,			tableitem_e,		programfunc_e,
 	libraryfunc_e,	arithmeticexpr_e,	boolexpr_e,
 	assignexpr_e,	newtable_e,			numconst_e,
-	boolconst_e,	stringconst_e,		nil_e
+	boolconst_e,	stringconst_e,		nil_e,
+	break_e,		continue_e
 }EXPR_TYPE;
 
 typedef struct Expr {
