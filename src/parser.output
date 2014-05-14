@@ -75,7 +75,7 @@ Grammar
 
    54 call: call '(' elist ')'
    55     | lvalue callsuffix
-   56     | '(' funcdef ')' '(' elist ')'
+   56     | '(' funcdef ')' normcall
 
    57 callsuffix: normcall
    58           | methodcall
@@ -226,11 +226,11 @@ call (61)
 callsuffix (62)
     on left: 57 58, on right: 55
 normcall (63)
-    on left: 59, on right: 57
+    on left: 59, on right: 56 57
 methodcall (64)
     on left: 60, on right: 58
 elist (65)
-    on left: 61 62, on right: 54 56 59 60 65 93
+    on left: 61 62, on right: 54 59 60 65 93
 exprs (66)
     on left: 63 64, on right: 61 63
 tablemake (67)
@@ -629,7 +629,7 @@ State 26
 
    32 term: '(' . expr ')'
    44 primary: '(' . funcdef ')'
-   56 call: '(' . funcdef ')' '(' elist ')'
+   56 call: '(' . funcdef ')' normcall
 
     NOT          shift, and go to state 8
     LOCAL        shift, and go to state 12
@@ -1096,7 +1096,7 @@ State 58
 
 State 59
 
-   56 call: '(' . funcdef ')' '(' elist ')'
+   56 call: '(' . funcdef ')' normcall
 
     FUNCTION  shift, and go to state 17
 
@@ -1301,7 +1301,7 @@ State 69
 State 70
 
    44 primary: '(' funcdef . ')'
-   56 call: '(' funcdef . ')' '(' elist ')'
+   56 call: '(' funcdef . ')' normcall
 
     ')'  shift, and go to state 116
 
@@ -2003,7 +2003,7 @@ State 106
 
 State 107
 
-   56 call: '(' funcdef . ')' '(' elist ')'
+   56 call: '(' funcdef . ')' normcall
 
     ')'  shift, and go to state 147
 
@@ -2118,11 +2118,13 @@ State 115
 State 116
 
    44 primary: '(' funcdef ')' .
-   56 call: '(' funcdef ')' . '(' elist ')'
+   56 call: '(' funcdef ')' . normcall
 
-    '('  shift, and go to state 151
+    '('  shift, and go to state 92
 
     $default  reduce using rule 44 (primary)
+
+    normcall  go to state 151
 
 
 State 117
@@ -2841,9 +2843,11 @@ State 146
 
 State 147
 
-   56 call: '(' funcdef ')' . '(' elist ')'
+   56 call: '(' funcdef ')' . normcall
 
-    '('  shift, and go to state 151
+    '('  shift, and go to state 92
+
+    normcall  go to state 151
 
 
 State 148
@@ -2926,35 +2930,9 @@ State 150
 
 State 151
 
-   56 call: '(' funcdef ')' '(' . elist ')'
+   56 call: '(' funcdef ')' normcall .
 
-    NOT          shift, and go to state 8
-    LOCAL        shift, and go to state 12
-    DBLCOLON     shift, and go to state 13
-    TRUE         shift, and go to state 14
-    FALSE        shift, and go to state 15
-    NIL          shift, and go to state 16
-    STR          shift, and go to state 18
-    PLUS_PLUS    shift, and go to state 19
-    MINUS_MINUS  shift, and go to state 20
-    ID           shift, and go to state 22
-    NUMBER       shift, and go to state 23
-    '-'          shift, and go to state 24
-    '['          shift, and go to state 25
-    '('          shift, and go to state 26
-
-    $default  reduce using rule 62 (elist)
-
-    expr        go to state 65
-    term        go to state 31
-    assignexpr  go to state 32
-    primary     go to state 33
-    lvalue      go to state 34
-    tableitem   go to state 35
-    call        go to state 36
-    elist       go to state 169
-    tablemake   go to state 37
-    const       go to state 41
+    $default  reduce using rule 56 (call)
 
 
 State 152
@@ -3057,7 +3035,7 @@ State 155
     lvalue      go to state 34
     tableitem   go to state 35
     call        go to state 36
-    elist       go to state 170
+    elist       go to state 169
     tablemake   go to state 37
     const       go to state 41
 
@@ -3094,7 +3072,7 @@ State 160
 
    86 ids: ',' . ID ids
 
-    ID  shift, and go to state 171
+    ID  shift, and go to state 170
 
 
 State 161
@@ -3155,7 +3133,7 @@ State 165
     '*'         shift, and go to state 82
     '/'         shift, and go to state 83
     '%'         shift, and go to state 84
-    ';'         shift, and go to state 172
+    ';'         shift, and go to state 171
 
 
 State 166
@@ -3188,7 +3166,7 @@ State 166
     '*'         shift, and go to state 82
     '/'         shift, and go to state 83
     '%'         shift, and go to state 84
-    '}'         shift, and go to state 173
+    '}'         shift, and go to state 172
 
 
 State 167
@@ -3207,19 +3185,12 @@ State 168
 
 State 169
 
-   56 call: '(' funcdef ')' '(' elist . ')'
+   60 methodcall: DBL_DOT ID '(' elist . ')'
 
-    ')'  shift, and go to state 174
+    ')'  shift, and go to state 173
 
 
 State 170
-
-   60 methodcall: DBL_DOT ID '(' elist . ')'
-
-    ')'  shift, and go to state 175
-
-
-State 171
 
    86 ids: ',' ID . ids
 
@@ -3227,10 +3198,10 @@ State 171
 
     $default  reduce using rule 87 (ids)
 
-    ids  go to state 176
+    ids  go to state 174
 
 
-State 172
+State 171
 
    93 forstmt: FOR '(' elist ';' expr ';' . elist ')' stmt
 
@@ -3258,47 +3229,40 @@ State 172
     lvalue      go to state 34
     tableitem   go to state 35
     call        go to state 36
-    elist       go to state 177
+    elist       go to state 175
     tablemake   go to state 37
     const       go to state 41
 
 
-State 173
+State 172
 
    70 indexedelem: '{' expr ':' expr '}' .
 
     $default  reduce using rule 70 (indexedelem)
 
 
-State 174
-
-   56 call: '(' funcdef ')' '(' elist ')' .
-
-    $default  reduce using rule 56 (call)
-
-
-State 175
+State 173
 
    60 methodcall: DBL_DOT ID '(' elist ')' .
 
     $default  reduce using rule 60 (methodcall)
 
 
-State 176
+State 174
 
    86 ids: ',' ID ids .
 
     $default  reduce using rule 86 (ids)
 
 
-State 177
+State 175
 
    93 forstmt: FOR '(' elist ';' expr ';' elist . ')' stmt
 
-    ')'  shift, and go to state 178
+    ')'  shift, and go to state 176
 
 
-State 178
+State 176
 
    93 forstmt: FOR '(' elist ';' expr ';' elist ')' . stmt
 
@@ -3328,7 +3292,7 @@ State 178
     ';'           shift, and go to state 27
     '{'           shift, and go to state 28
 
-    stmt        go to state 179
+    stmt        go to state 177
     expr        go to state 30
     term        go to state 31
     assignexpr  go to state 32
@@ -3348,7 +3312,7 @@ State 178
     returnstmt  go to state 46
 
 
-State 179
+State 177
 
    93 forstmt: FOR '(' elist ';' expr ';' elist ')' stmt .
 

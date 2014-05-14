@@ -190,7 +190,7 @@ void printSymbolList (Symbol* mySymbol){
 		switch (mySymbol->scopeSpace){
 			case _PROGRAM: 	printf("Program\t");			break;
 			case _LOCAL: 	printf("Local\t");				break;
-			case _FORMAL:	assert(0);
+			case _FORMAL:	printf("Formal\t");				break;
 		}
 		switch (mySymbol->symbolType){
 			case VAR:		printf("Variable\t\t");			break;

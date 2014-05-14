@@ -87,9 +87,9 @@ struct Expr * manage_assignexpr_lvalue_assign_expr		(struct Expr *, struct Expr 
 
 //primary
 struct Expr *	manage_primary_lvalue			(struct Expr *);
-void 			manage_primary_call				();
-void 			manage_primary_tablemake		();
-void 			manage_primary_funcdef_parenthesis();
+struct Expr *	manage_primary_call				(struct Expr *);
+struct Expr *	manage_primary_tablemake		(struct Expr *);
+struct Expr *	manage_primary_par_funcdef		(struct Symbol *);
 struct Expr *	manage_primary_const			(struct Expr *);
 
 //lvalue
@@ -107,14 +107,14 @@ void 			manage_tableitem_call_brackets_expr();
 //call
 struct Expr *	manage_call_call_par_elist		(struct Expr *, struct ExprList *);
 struct Expr *	manage_call_lvalue_callsuffix	(struct Expr *, struct Expr *);
-void 			manage_call_funcdef_parenthesis_elist_parenthesis();
+struct Expr *	manage_call_par_funcdef_normcall(struct Symbol *, struct Expr *);
 
 //callsuffix
 struct Expr *	manage_callsuffix_normcall		(struct Expr *);
 struct Expr *	manage_callsuffix_methodcall	(struct Expr *);
 
 //normcall
-struct Expr * 	manage_normcall_elist_parenthesis (struct ExprList *);
+struct Expr * 	manage_normcall_par_elist		(struct ExprList *);
 
 //methodcall
 struct Expr *	manage_methodcall_DBL_DOT_ID_par_elist (char * id, struct ExprList *);

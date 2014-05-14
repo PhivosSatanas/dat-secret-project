@@ -55,7 +55,8 @@
 
 %%
 
-program:	stmts					{ manage_stmts						(); } ;
+program:	stmts					{ manage_stmts						(); } 
+		;
 
 stmts:	stmts stmt					{ manage_stmts_stmt					(); }
 		| /* empty */				{ manage_stmts_empty				(); }
@@ -94,7 +95,8 @@ expr:	assignexpr					{ $$ = manage_expr_assignexpr	  ($1); }
 		| term						{ $$ = manage_expr_term($1); 			}
 		;
 		
-M:									{ $$ = handle_boolean_M				();	};
+M:									{ $$ = handle_boolean_M				();	}
+		;
 
 term:	'(' expr ')'				{ $$ = manage_term_expr_parenthesis($2);}
 		| '-' expr %prec UMINUS		{ $$ = handle_term_uminus_expr($2); 	}
@@ -106,19 +108,20 @@ term:	'(' expr ')'				{ $$ = manage_term_expr_parenthesis($2);}
 		| primary					{ $$ = manage_term_primary($1);			}
 		;
 
-assignexpr: 	lvalue '=' expr		{ $$ = manage_assignexpr_lvalue_assign_expr($1, $3);};
-
-primary:lvalue						{ $$ = manage_primary_lvalue($1); 		}
-		| call						{ manage_primary_call				(); }
-		| tablemake					{ manage_primary_tablemake			(); }
-		| '(' funcdef ')'			{ manage_primary_funcdef_parenthesis(); }
-		| const						{ manage_primary_const($1);}
+assignexpr: lvalue '=' expr		{ $$ = manage_assignexpr_lvalue_assign_expr($1, $3);}
 		;
 
-lvalue:	ID							{ $$ = manage_lvalue_ID				($1); }
-		| LOCAL ID					{ $$ = manage_lvalue_LOCAL_ID		($2); }
-		| DBLCOLON ID				{ $$ = manage_lvalue_DBLCOLON_ID	($2); }
-		| tableitem					{ manage_lvalue_tableitem			(); }
+primary:lvalue						{ $$ = manage_primary_lvalue		($1);}
+		| call						{ $$ = manage_primary_call			($1);}
+		| tablemake					{ $$ = manage_primary_tablemake		($1);}
+		| '(' funcdef ')'			{ $$ = manage_primary_par_funcdef	($2);}
+		| const						{ $$ = manage_primary_const			($1);}
+		;
+
+lvalue:	ID							{ $$ = manage_lvalue_ID				($1);}
+		| LOCAL ID					{ $$ = manage_lvalue_LOCAL_ID		($2);}
+		| DBLCOLON ID				{ $$ = manage_lvalue_DBLCOLON_ID	($2);}
+		| tableitem					{ manage_lvalue_tableitem			();  }
 		;
 
 tableitem: lvalue '.' ID			{ $$ = manage_tableitem_lvalue_dot_ID($1, $3);}
@@ -129,14 +132,14 @@ tableitem: lvalue '.' ID			{ $$ = manage_tableitem_lvalue_dot_ID($1, $3);}
 
 call:	call '(' elist ')'				{ $$ = manage_call_call_par_elist	($1, $3);}
 		| lvalue callsuffix				{ $$ = manage_call_lvalue_callsuffix($1, $2);}
-		| '(' funcdef ')' '(' elist ')' { manage_call_funcdef_parenthesis_elist_parenthesis();}
+		| '(' funcdef ')' normcall		{ $$ = manage_call_par_funcdef_normcall($2, $4);}
 		;
 
 callsuffix:	normcall				{ $$ = manage_callsuffix_normcall		($1);}
 		| 	methodcall				{ $$ = manage_callsuffix_methodcall		($1);}
 		;
 
-normcall:	'(' elist ')'			{ $$ = manage_normcall_elist_parenthesis($2); }
+normcall:	'(' elist ')'			{ $$ = manage_normcall_par_elist		($2);}
 		;
 
 methodcall:	DBL_DOT ID '(' elist ')'{ $$ = manage_methodcall_DBL_DOT_ID_par_elist($2, $4);}

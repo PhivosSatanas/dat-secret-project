@@ -286,24 +286,29 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 }
 
 /********** primary **********/
-struct Expr * manage_primary_lvalue(Expr * lvalue) {
+struct Expr * manage_primary_lvalue (Expr * lvalue){
 	printf("%d: primary -> lvalue\n",yylineno);
 	return emit_iftableitem(lvalue);
 }
 
-void manage_primary_call() {
+Expr * manage_primary_call (Expr * call){
 	printf("%d: primary -> call\n",yylineno);
+	return call;
 }
 
-void manage_primary_tablemake (){
+Expr * manage_primary_tablemake (Expr * tablemake){
 	printf("%d: primary -> tablemake\n",yylineno);
+	return tablemake;
 }
 
-void manage_primary_funcdef_parenthesis() {
+Expr * manage_primary_par_funcdef (Symbol * funcdef){
 	printf("%d: primary -> '('function')'\n",yylineno);
+	Expr * primary = newexpr(programfunc_e);
+	primary->sym = funcdef;
+	return primary;
 }
 
-Expr * manage_primary_const(Expr * constant) {
+Expr * manage_primary_const (Expr * constant){
 	printf("%d: primary -> const\n",yylineno);
 	return constant;
 }
@@ -433,8 +438,10 @@ Expr * manage_call_lvalue_callsuffix (Expr * lvalue, Expr * callsuffix){
 	return make_call(lvalue, callsuffix->elist);
 }
 
-void manage_call_funcdef_parenthesis_elist_parenthesis (){
+Expr * manage_call_par_funcdef_normcall (Symbol * funcdef, Expr * normcall){
 	printf("%d: call -> '(' funcdef ')'\n",yylineno);
+	normcall->type = programfunc_e;
+	normcall->sym = funcdef;
 }
 
 /********** callsuffix **********/
@@ -449,7 +456,7 @@ Expr * manage_callsuffix_methodcall (Expr * methodcall){
 }
 
 /********** normcall **********/
-Expr * manage_normcall_elist_parenthesis (ExprList * elist){
+Expr * manage_normcall_par_elist (ExprList * elist){
 	printf("%d: normcall -> '('elist ')' \n",yylineno);
 	
 	Expr * normcall = newexpr(var_e); //TODO not sure. Isn't specified

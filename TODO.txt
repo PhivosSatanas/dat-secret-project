@@ -9,7 +9,6 @@
 	* problem with seeng include ExprList.h
 ? tablemake
 	* problem with seeng include ExprDblList.h
-* primary -> (funcdef)
 * IF, IF ELSE
 * WHILE, FOR
 * RETURN
@@ -23,6 +22,7 @@
 ============================ Completed Features ===============================
 
 # funcdef + offsets
+# primary -> ( funcdef )
 # assignexprs & storage expressions
 * BUGFIX: x = t.a.b.c; does not emit c (last tableitem)
 # AND OR NOT partial evauation (with truetest!)
