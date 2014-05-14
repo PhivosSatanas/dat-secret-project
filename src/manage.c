@@ -253,7 +253,7 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 		}	
 		else{
 			assignexpr = newexpr(assignexpr_e);
-			assignexpr->sym = istempexpr(expr) ? expr->sym : newtemp(); //TODO just newtemp()? lect10/23
+			assignexpr->sym = newtemp();
 			assignexpr->truelist = expr->truelist;
 			assignexpr->falselist = expr->falselist;
 			if (expr->type == boolexpr_e){ //TODO every parser rule that has expr must have this if
@@ -288,7 +288,7 @@ Expr * manage_assignexpr_lvalue_assign_expr(Expr * lvalue, Expr * expr){
 /********** primary **********/
 struct Expr * manage_primary_lvalue(Expr * lvalue) {
 	printf("%d: primary -> lvalue\n",yylineno);
-	return lvalue;
+	return emit_iftableitem(lvalue);
 }
 
 void manage_primary_call() {
@@ -380,73 +380,98 @@ struct Expr * manage_lvalue_DBLCOLON_ID(char * tempId) {
 	return NULL;
 }
 
-void manage_lvalue_member() {
-	printf("%d: lvalue -> member\n",yylineno);
+void manage_lvalue_tableitem() {
+	printf("%d: lvalue -> tableitem\n",yylineno);
 }
 
-/********** member **********/
-Expr * manage_member_lvalue_dot_ID(Expr * lvalue, char * ID) {
+/********** tableitem **********/
+Expr * manage_tableitem_lvalue_dot_ID(Expr * lvalue, char * ID) {
 	printf("%d: memebr -> lvalue . ID\n",yylineno);
 	assert(lvalue);
 	assert(ID);
 
-	return member_item (lvalue, ID);
+	return member_item(lvalue, ID);
 }
 
-Expr * manage_member_lvalue_brackets_expr(Expr * lvalue, Expr * expr) {
+Expr * manage_tableitem_lvalue_brackets_expr(Expr * lvalue, Expr * expr) {
 	printf("%d: memebr -> lvalue '[' expr ']'\n", yylineno);
 	assert(lvalue);
 	assert(expr);
 
 	lvalue = emit_iftableitem (lvalue);
-	Expr* e = newexpr(tableitem_e);
-	e->sym = lvalue->sym;
-	e->index = expr;
-	return e;
+	Expr* tableitem = newexpr(tableitem_e);
+	tableitem->sym = lvalue->sym;
+	tableitem->index = expr;
+	return tableitem;
 }
 
-void manage_member_call_dot_ID() {
+void manage_tableitem_call_dot_ID() {
 	printf("%d: memebr -> call . ID\n",yylineno);
 }
 
-void manage_member_call_brackets_expr() {
+void manage_tableitem_call_brackets_expr() {
 	printf("%d: memebr -> call '[' expr ']'\n",yylineno);
 }
 
 /********** call **********/
-void manage_call_call_elist_parenthesis() {
+Expr * manage_call_call_par_elist (Expr * call, ExprList * elist){
 	printf("%d: call -> call '(' elist ')'\n",yylineno);
+	
+	return make_call(call, elist);
 }
 
-void manage_call_lvalue_callsuffix() {
-	printf("%d: call -> lvalue callsaffix\n",yylineno);
+Expr * manage_call_lvalue_callsuffix (Expr * lvalue, Expr * callsuffix){
+	printf("%d: call -> lvalue callsuffix\n",yylineno);
+	assert(lvalue);
+	assert(callsuffix);
+	
+	if (callsuffix->method){
+		Expr * self = lvalue;
+		lvalue = emit_iftableitem(member_item(self, callsuffix->name));
+		addExprListFront(callsuffix->elist, self);
+	}
+	return make_call(lvalue, callsuffix->elist);
 }
 
-void manage_call_funcdef_parenthesis_elist_parenthesis() {
+void manage_call_funcdef_parenthesis_elist_parenthesis (){
 	printf("%d: call -> '(' funcdef ')'\n",yylineno);
 }
 
 /********** callsuffix **********/
-void manage_callsuffix_normcall() {
+Expr * manage_callsuffix_normcall (Expr * normcall){
 	printf("%d: callsuffix -> normcall\n",yylineno);
+	return normcall;
 }
 
-void manage_callsuffix_methodcall() {
+Expr * manage_callsuffix_methodcall (Expr * methodcall){
 	printf("%d: callsuffix -> methodcall\n",yylineno);
+	return methodcall;
 }
 
 /********** normcall **********/
-void manage_normcall_elist_parenthesis() {
+Expr * manage_normcall_elist_parenthesis (ExprList * elist){
 	printf("%d: normcall -> '('elist ')' \n",yylineno);
+	
+	Expr * normcall = newexpr(var_e); //TODO not sure. Isn't specified
+	normcall->elist = elist;
+	normcall->method = 0;
+	normcall->name = NULL;
+	return normcall;
 }
 
 /********** methodcall **********/
-void manage_methodcall_DBL_DOT_ID_elist_parenthesis() {
+Expr * manage_methodcall_DBL_DOT_ID_par_elist (char * id, ExprList * elist){
 	printf("%d: methodcall -> .. ID '('elist ')'\n",yylineno);
+	
+	Expr * methodcall = newexpr(var_e); //TODO not sure. Isn't specified
+	methodcall->elist = elist;
+	methodcall->method = 1;
+	methodcall->name = id;
+	return methodcall;
 }
 
 /********** elist **********/
-void manage_elist_expr_exprs() {
+void manage_elist_expr_exprs (){
 	printf("%d: elist -> expr exprs\n",yylineno);
 }
 

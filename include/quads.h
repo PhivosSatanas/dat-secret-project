@@ -16,6 +16,7 @@ extern int currentScope;
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include "ExprList.h"
 #include "SymbolTable.h"
 #include "IntStack.h"
 #include "expressions.h"
@@ -48,7 +49,8 @@ void			emit 			(IOPCODE op, struct Expr* arg1,
 									unsigned label);
 struct Expr * 	emit_iftableitem(struct Expr * e);
 void 			expand 			();
-struct Expr * 	member_item 	(struct Expr* lvalue, char *name);
+struct Expr * 	member_item 	(struct Expr *, char *);
+struct Expr *	make_call		(struct Expr *, struct ExprList *);
 IntStack *		makelist		(int i);
 void 			backpatch		(IntStack * list, unsigned label);
 int 			print_const 	(struct Expr * e);

@@ -9,6 +9,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
+#include "ExprList.h"
 #include "SymbolTable.h"
 #include "SymbolStack.h"
 #include "IntStack.h"
@@ -94,28 +95,28 @@ struct Expr *	manage_primary_const			(struct Expr *);
 struct Expr * 	manage_lvalue_ID				(char *);
 struct Expr * 	manage_lvalue_LOCAL_ID			(char *);
 struct Expr * 	manage_lvalue_DBLCOLON_ID		(char *);
-void 			manage_lvalue_member			();
+void 			manage_lvalue_tableitem			();
 
-//member
-struct Expr * 	manage_member_lvalue_dot_ID		(struct Expr *, char *);
-struct Expr * 	manage_member_lvalue_brackets_expr(struct Expr *, struct Expr *);
-void 			manage_member_call_dot_ID		();
-void 			manage_member_call_brackets_expr();
+//tableitem
+struct Expr * 	manage_tableitem_lvalue_dot_ID	(struct Expr *, char *);
+struct Expr * 	manage_tableitem_lvalue_brackets_expr(struct Expr *, struct Expr *);
+void 			manage_tableitem_call_dot_ID	();
+void 			manage_tableitem_call_brackets_expr();
 
 //call
-void 			manage_call_call_elist_parenthesis();
-void 			manage_call_lvalue_callsuffix	();
+struct Expr *	manage_call_call_par_elist		(struct Expr *, struct ExprList *);
+struct Expr *	manage_call_lvalue_callsuffix	(struct Expr *, struct Expr *);
 void 			manage_call_funcdef_parenthesis_elist_parenthesis();
 
 //callsuffix
-void 			manage_callsuffix_normcall		();
-void 			manage_callsuffix_methodcall	();
+struct Expr *	manage_callsuffix_normcall		(struct Expr *);
+struct Expr *	manage_callsuffix_methodcall	(struct Expr *);
 
 //normcall
-void 			manage_normcall_elist_parenthesis();
+struct Expr * 	manage_normcall_elist_parenthesis (struct ExprList *);
 
 //methodcall
-void 			manage_methodcall_DBL_DOT_ID_elist_parenthesis();
+struct Expr *	manage_methodcall_DBL_DOT_ID_par_elist (char * id, struct ExprList *);
 
 //elist
 void 			manage_elist_expr_exprs			();

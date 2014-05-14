@@ -29,6 +29,7 @@ nbproject/private/private.xml
 #############
 /src/obj
 alpha_compiler
+parser.output
 
 #############
 ## Windows detritus

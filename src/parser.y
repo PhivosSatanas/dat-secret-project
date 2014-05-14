@@ -15,25 +15,28 @@
 %expect 1
 
 %union{
-	char * 			stringVal;
-	int				intVal;
-	double 			realVal;
-	struct Symbol * symbolVal;
-	struct Expr   * exprVal;
+	char *				stringVal;
+	int					intVal;
+	double				realVal;
+	struct Symbol   *	symbolVal;
+	struct ExprList *	ExprListVal;
+	struct Expr     *	exprVal;
 }
 
 %token IF ELSE WHILE FOR NOT RETURN BREAK CONTINUE LOCAL DBLCOLON TRUE FALSE NIL FUNCTION EQ NOT_EQ DBLDOT STR PLUS_PLUS MINUS_MINUS GREATER_EQ LESS_EQ AND OR UNRECOGNIZED
 
 %token<stringVal> 	ID
 %token<realVal> 	NUMBER
-
 %type<stringVal>	funcname	STR
 %type<intVal>		funcbody	M
 %type<symbolVal> 	funcdef		funcprefix
-%type<exprVal>		lvalue		member		primary		assignexpr
-					call		term		tablemake	const	
-					expr		elist		stmts		stmt		
+%type<ExprListVal>	elist
+%type<exprVal>		lvalue		tableitem	primary		assignexpr
+					call		callsuffix	normcall	methodcall
+					term		tablemake	const		expr
+					stmts		stmt		
 					BREAK		CONTINUE
+
 %left	'='
 %left	OR
 %left	AND
@@ -111,27 +114,28 @@ primary:lvalue						{ $$ = manage_primary_lvalue($1); 		}
 lvalue:	ID							{ $$ = manage_lvalue_ID				($1); }
 		| LOCAL ID					{ $$ = manage_lvalue_LOCAL_ID		($2); }
 		| DBLCOLON ID				{ $$ = manage_lvalue_DBLCOLON_ID	($2); }
-		| member					{ manage_lvalue_member				(); }
+		| tableitem					{ manage_lvalue_tableitem			(); }
 		;
 
-member:	lvalue '.' ID				{ $$ = manage_member_lvalue_dot_ID	($1, $3); }
-		| lvalue '[' expr ']'		{ $$ = manage_member_lvalue_brackets_expr($1, $3); }
-		| call '.' ID				{ manage_member_call_dot_ID			(); }
-		| call '[' expr ']'			{ manage_member_call_brackets_expr	(); }
+tableitem: lvalue '.' ID			{ $$ = manage_tableitem_lvalue_dot_ID($1, $3);}
+		| lvalue '[' expr ']'		{ $$ = manage_tableitem_lvalue_brackets_expr($1, $3);}
+		| call '.' ID				{ manage_tableitem_call_dot_ID			();}
+		| call '[' expr ']'			{ manage_tableitem_call_brackets_expr	();}
 		;
 
-call:	call '(' elist ')'			{ manage_call_call_elist_parenthesis(); }
-		| lvalue callsuffix			{ manage_call_lvalue_callsuffix		(); }
+call:	call '(' elist ')'				{ $$ = manage_call_call_par_elist	($1, $3);}
+		| lvalue callsuffix				{ $$ = manage_call_lvalue_callsuffix($1, $2);}
 		| '(' funcdef ')' '(' elist ')' { manage_call_funcdef_parenthesis_elist_parenthesis();}
 		;
 
-callsuffix:	normcall				{ manage_callsuffix_normcall		(); }
-		| 	methodcall				{ manage_callsuffix_methodcall		(); }
+callsuffix:	normcall				{ $$ = manage_callsuffix_normcall		($1);}
+		| 	methodcall				{ $$ = manage_callsuffix_methodcall		($1);}
 		;
 
-normcall:	'(' elist ')'			{ manage_normcall_elist_parenthesis	(); } ;
+normcall:	'(' elist ')'			{ $$ = manage_normcall_elist_parenthesis($2); }
+		;
 
-methodcall:	DBL_DOT ID '(' elist ')'{ manage_methodcall_DBL_DOT_ID_elist_parenthesis();}
+methodcall:	DBL_DOT ID '(' elist ')'{ $$ = manage_methodcall_DBL_DOT_ID_par_elist($2, $4);}
 		; 
 
 elist:		expr exprs				{ manage_elist_expr_exprs			(); }

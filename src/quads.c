@@ -37,14 +37,11 @@ void emit (
 }
 
 Expr * emit_iftableitem (Expr * e){
-	printf("e->type = %d\n", e->type); //TODO delete
+	assert(e);
 	if (e->type != tableitem_e){
-		printf("%s is NOT tableitem\n", e->sym->name); //TODO delete
 		return e;
 	}
 	else {
-		printf("%s IS  tableitem\n", e->sym->name); //TODO delete
-		// TODO might need freeExpression(e);
 		Expr * result = newexpr(var_e);
 		result->sym = newtemp();
 		emit(tablegetelem, e, e->index, result, 0);
@@ -74,39 +71,22 @@ Expr * member_item (Expr * lvalue, char * name){
 	return item;
 }
 
-/*Expr* make_call (Expr* lvalue, Expr* elist){ //TODO delete
-	Expr* func = emit_iftableitem(lvalue);
-	Expr* tmp = elist;
-	while (tmp != NULL){ //TODO WARNING in lect10:27 says reversed elist :/
-		emit(param, tmp, NULL, NULL);
-		tmp = tmp->next;
+Expr * make_call (struct Expr * lvalue, struct ExprList * elist){
+	assert(lvalue);
+	assert(elist);
+	
+	Expr * func = emit_iftableitem(lvalue);
+	ExprNode * cur = elist->head;
+	while (cur != NULL){
+		emit(param, cur->expr, NULL, NULL, 0);
+		cur = cur->prev;
 	}
-	emit(call, func, NULL, NULL);
-	Expr* result = newexpr(var_e);
-	result->sym = getTempVar();
-	emit(getretval, result, NULL, NULL);
+	emit(call, func, NULL, NULL, 0);
+	Expr * result = newexpr(var_e);
+	result->sym = newtemp();
+	emit(getretval, result, NULL, NULL, 0);
 	return result;
-}*/
-
-/*Expr* make_call (Expr* lvalue, Expr* elist) {  //TODO delete
-
-	Expr* func = emit_iftableitem(lvalue);
-	Expr* tail = elist;
-
-	// Traverse to the last expression struct of the elist
-	for ( ; (tail!=NULL) && (tail->next!= NULL); tail=tail->next) {}
-
-	for ( ; tail!=NULL; tail=tail->previous) {
-		emit(param, NULL, NULL, tail);
-	}
-
-	emit(call, NULL, NULL, func);
-	Expr* result = newexpr(var_e);
-	result->symbol = newTempVar();
-	emit(getretval, NULL, NULL, result);
-
-	return result;
-}*/
+}
 
 void backpatch (IntStack * list, unsigned label){
 	if (list == NULL) { return; }

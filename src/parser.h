@@ -114,13 +114,14 @@ union YYSTYPE
 {
 #line 17 "./src/parser.y" /* yacc.c:1909  */
 
-	char * 			stringVal;
-	int				intVal;
-	double 			realVal;
-	struct Symbol * symbolVal;
-	struct Expr   * exprVal;
+	char *				stringVal;
+	int					intVal;
+	double				realVal;
+	struct Symbol   *	symbolVal;
+	struct ExprList *	ExprListVal;
+	struct Expr     *	exprVal;
 
-#line 124 "./src/parser.h" /* yacc.c:1909  */
+#line 125 "./src/parser.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
