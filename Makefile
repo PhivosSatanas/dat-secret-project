@@ -13,11 +13,11 @@ LDIR =./lib# 				# Path to library files' directory
 LIBS=#					# Additional compilation macros e.g. -lm
 
 # Below is a list of all .h files on which .c files depend
-_DEPS = ExprList.h expressions.h handler.h IntStack.h manage.h offsets.h parser.h quads.h SymbolStack.h SymbolTable.h
+_DEPS = ExprDblList.h ExprList.h expressions.h handler.h IntStack.h manage.h offsets.h parser.h quads.h SymbolStack.h SymbolTable.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
 # Below is a list of all .o files on which .c files depend
-_OBJ = ExprList.o expressions.o handler.o IntStack.o manage.o offsets.o parser.o quads.o scanner.o SymbolStack.o SymbolTable.o
+_OBJ = ExprDblList.o ExprList.o expressions.o handler.o IntStack.o manage.o offsets.o parser.o quads.o scanner.o SymbolStack.o SymbolTable.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 ################################################################################

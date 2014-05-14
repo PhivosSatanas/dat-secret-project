@@ -35,6 +35,7 @@ typedef struct Expr {
 	int					method;
 	char *				name;
 	struct ExprList	*	elist;
+	struct ExprDblList*	dblelist;
 }Expr;
 
 Expr* newexpr 				(EXPR_TYPE t);

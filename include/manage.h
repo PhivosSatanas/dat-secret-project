@@ -9,7 +9,6 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
-#include "ExprList.h"
 #include "SymbolTable.h"
 #include "SymbolStack.h"
 #include "IntStack.h"
@@ -17,6 +16,8 @@
 #include "expressions.h"
 #include "offsets.h"
 #include "quads.h"
+#include "ExprList.h"
+#include "ExprDblList.h"
 
 
 extern int 				yylineno;
@@ -127,8 +128,8 @@ void 			manage_exprs_comma_expr_exprs	();
 void 			manage_exprs_empty				();
 
 //tablemake
-void 			manage_tablemake_squarebr_elist();
-void 			manage_tablemake_squarebr_indexed();
+struct Expr *	manage_tablemake_squarebr_elist		(struct ExprList *);
+struct Expr *	manage_tablemake_squarebr_indexed	(struct ExprDblList *);
 
 //indexed
 void 			manage_indexed_indexedelem_indexedelems();

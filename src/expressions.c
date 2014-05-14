@@ -11,12 +11,13 @@
 Expr* newexpr (EXPR_TYPE t){
 	Expr* e = (Expr*) malloc (sizeof(Expr));
 	memset(e, 0, sizeof(Expr));
-	e->breaklist = createIntStack(); //TODO should be created only upon need
-	e->contlist  = createIntStack();
-	e->truelist  = createIntStack();
-	e->falselist = createIntStack();
-	e->type 	 = t;
-	e->elist	 = NULL;
+	e->breaklist	= createIntStack(); //TODO should be created only upon need
+	e->contlist		= createIntStack();
+	e->truelist		= createIntStack();
+	e->falselist	= createIntStack();
+	e->elist		= createExprList();
+	e->dblelist		= createExprDblList();
+	e->type			= t;
 	return e;
 }
 

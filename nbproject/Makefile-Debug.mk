@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/src/ExprDblList.o \
 	${OBJECTDIR}/src/ExprList.o \
 	${OBJECTDIR}/src/IntStack.o \
 	${OBJECTDIR}/src/SymbolStack.o \
@@ -71,6 +72,11 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/hy340-phase3: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.c} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/hy340-phase3 ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/src/ExprDblList.o: src/ExprDblList.c 
+	${MKDIR} -p ${OBJECTDIR}/src
+	${RM} "$@.d"
+	$(COMPILE.c) -g -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/src/ExprDblList.o src/ExprDblList.c
 
 ${OBJECTDIR}/src/ExprList.o: src/ExprList.c 
 	${MKDIR} -p ${OBJECTDIR}/src

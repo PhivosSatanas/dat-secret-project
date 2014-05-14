@@ -112,16 +112,17 @@ extern int yydebug;
 typedef union YYSTYPE YYSTYPE;
 union YYSTYPE
 {
-#line 17 "./src/parser.y" /* yacc.c:1909  */
+#line 20 "./src/parser.y" /* yacc.c:1909  */
 
-	char *				stringVal;
-	int					intVal;
-	double				realVal;
-	struct Symbol   *	symbolVal;
-	struct ExprList *	ExprListVal;
-	struct Expr     *	exprVal;
+	char *					stringVal;
+	int						intVal;
+	double					realVal;
+	struct Symbol		*	SymbolVal;
+	struct ExprList		*	ExprListVal;
+	struct ExprDblList	*	ExprDblListVal;
+	struct Expr			*	ExprVal;
 
-#line 125 "./src/parser.h" /* yacc.c:1909  */
+#line 126 "./src/parser.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

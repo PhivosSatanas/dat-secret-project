@@ -295,7 +295,7 @@ void manage_primary_call() {
 	printf("%d: primary -> call\n",yylineno);
 }
 
-void manage_primary_tablemake() {
+void manage_primary_tablemake (){
 	printf("%d: primary -> tablemake\n",yylineno);
 }
 
@@ -489,12 +489,35 @@ void manage_exprs_empty() {
 }
 
 /********** tablemake **********/
-void manage_tablemake_squarebr_elist() {
+Expr * manage_tablemake_squarebr_elist (ExprList * elist){
 	printf("%d: tablemake -> '[' elist ']'\n",yylineno);
+	assert(elist);
+	
+	Expr * t = newexpr(newtable_e);
+	t->sym = newtemp();
+	emit(tablecreate, t, NULL, NULL, 0);
+	int i =0;
+	ExprNode * cur = elist->tail;
+	while (cur->next != NULL){
+		emit(tablesetelem, t, newexpr_constnum(i++), cur->expr, 0);
+		cur = cur->next;
+	}
+	return t;
 }
 
-void manage_tablemake_squarebr_indexed() {
-	printf("%d: tablemake -> '[' indexed ']'\n",yylineno);
+Expr *  manage_tablemake_squarebr_indexed (ExprDblList * indexed){
+	printf("%d: tablemake -> '[' indexed ']'\n",yylineno);	
+	assert(indexed);
+	
+	Expr * t = newexpr(newtable_e);
+	t->sym = newtemp();
+	emit(tablecreate, t, NULL, NULL, 0);
+	ExprDblNode * cur = indexed->tail;
+	while (cur->next != NULL){
+		emit(tablesetelem, t, cur->key, cur->value, 0);
+		cur = cur->next;
+	}
+	return t;
 }
 
 /********** indexed **********/

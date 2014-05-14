@@ -4,6 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>include/ExprDblList.h</itemPath>
       <itemPath>include/ExprList.h</itemPath>
       <itemPath>include/IntStack.h</itemPath>
       <itemPath>include/SymbolStack.h</itemPath>
@@ -23,6 +24,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>src/ExprDblList.c</itemPath>
       <itemPath>src/ExprList.c</itemPath>
       <itemPath>src/IntStack.c</itemPath>
       <itemPath>src/SymbolStack.c</itemPath>
@@ -61,6 +63,8 @@
       </compileType>
       <item path="TODO.txt" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/ExprDblList.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ExprList.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IntStack.h" ex="false" tool="3" flavor2="0">
@@ -80,6 +84,8 @@
       <item path="include/parser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/quads.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/ExprDblList.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/ExprList.c" ex="false" tool="0" flavor2="0">
       </item>
@@ -130,6 +136,8 @@
       </compileType>
       <item path="TODO.txt" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="include/ExprDblList.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="include/ExprList.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/IntStack.h" ex="false" tool="3" flavor2="0">
@@ -149,6 +157,8 @@
       <item path="include/parser.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="include/quads.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="src/ExprDblList.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="src/ExprList.c" ex="false" tool="0" flavor2="0">
       </item>

@@ -5,6 +5,9 @@
 %{
 	#include "../include/manage.h"
 	#include "../include/SymbolTable.h"
+	#include "../include/expressions.h"
+	#include "../include/ExprList.h"
+	#include "../include/ExprDblList.h"
 	
 	int yyerror (const char* yaccProvidedMessage);
 	int yylex (void);
@@ -15,27 +18,28 @@
 %expect 1
 
 %union{
-	char *				stringVal;
-	int					intVal;
-	double				realVal;
-	struct Symbol   *	symbolVal;
-	struct ExprList *	ExprListVal;
-	struct Expr     *	exprVal;
+	char *					stringVal;
+	int						intVal;
+	double					realVal;
+	struct Symbol		*	SymbolVal;
+	struct ExprList		*	ExprListVal;
+	struct ExprDblList	*	ExprDblListVal;
+	struct Expr			*	ExprVal;
 }
 
 %token IF ELSE WHILE FOR NOT RETURN BREAK CONTINUE LOCAL DBLCOLON TRUE FALSE NIL FUNCTION EQ NOT_EQ DBLDOT STR PLUS_PLUS MINUS_MINUS GREATER_EQ LESS_EQ AND OR UNRECOGNIZED
 
-%token<stringVal> 	ID
-%token<realVal> 	NUMBER
-%type<stringVal>	funcname	STR
-%type<intVal>		funcbody	M
-%type<symbolVal> 	funcdef		funcprefix
-%type<ExprListVal>	elist
-%type<exprVal>		lvalue		tableitem	primary		assignexpr
-					call		callsuffix	normcall	methodcall
-					term		tablemake	const		expr
-					stmts		stmt		
-					BREAK		CONTINUE
+%token<stringVal>		ID
+%token<realVal>			NUMBER
+%type<stringVal>		funcname	STR
+%type<intVal>			funcbody	M
+%type<SymbolVal>		funcdef		funcprefix
+%type<ExprListVal>		elist
+%type<ExprDblListVal>	indexed
+%type<ExprVal>			lvalue		tableitem	primary		assignexpr
+						call		callsuffix	normcall	methodcall
+						term		tablemake	const		expr
+						stmts		stmt		BREAK		CONTINUE
 
 %left	'='
 %left	OR
@@ -146,8 +150,8 @@ exprs:		',' expr exprs			{ manage_exprs_comma_expr_exprs		(); }
 		| 	/* empty */				{ manage_exprs_empty				(); }
 		;
  
-tablemake:	'[' elist ']'			{ manage_tablemake_squarebr_elist	(); }
-		| 	'[' indexed ']'			{ manage_tablemake_squarebr_indexed	(); }
+tablemake:	'[' elist ']'			{ $$ = manage_tablemake_squarebr_elist	($2); }
+		| 	'[' indexed ']'			{ $$ = manage_tablemake_squarebr_indexed($2); }
 		;
 
 indexed: indexedelem indexedelems{ manage_indexed_indexedelem_indexedelems();};
