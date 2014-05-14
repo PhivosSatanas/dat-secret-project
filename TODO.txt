@@ -9,7 +9,6 @@
 	* problem with seeng include ExprList.h
 ? tablemake
 	* problem with seeng include ExprDblList.h
-* IF, IF ELSE
 * WHILE, FOR
 ============================ Optional Features ================================
 
@@ -20,6 +19,7 @@
 
 ============================ Completed Features ===============================
 
+* IF, IF ELSE
 * RETURN
 # funcdef + offsets
 # primary -> ( funcdef )

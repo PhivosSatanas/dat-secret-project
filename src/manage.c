@@ -709,26 +709,30 @@ int manage_ifprefix_IF_par_expr (Expr * expr){
 	printf("%d: ifexpr ->IF '(' expr ')'\n",yylineno);
 	assert(expr);
 	
-	emit(if_eq, expr, newexpr_constbool(1), NULL, nextquadlabel()+2);
-	int ifprefix = nextquadlabel();
-	emit(jump, NULL, NULL, NULL, 0);
-	return ifprefix;
+//	// Savidis code below, I think not partial eval compatible
+//	emit(if_eq, expr, newexpr_constbool(1), NULL, nextquadlabel()+2);
+//	int ifprefix = nextquadlabel();
+//	emit(jump, NULL, NULL, NULL, 0);
+//	return ifprefix;
 	
-//	Expr * boolExprResult = newexpr(var_e);
-//	boolExprResult->sym = newtemp();
-//		
-//	int assignTrueLabel  = nextquadlabel();
-//	int assignFalseLabel = assignTrueLabel+2;
-//	printf("truelist: "); printIntStack(expr->truelist); //TODO delete
-//	printf("falselist: "); printIntStack(expr->falselist); //TODO delete
-//	backpatch(expr->truelist,  assignTrueLabel);
-//	backpatch(expr->falselist, assignFalseLabel);
-//	
-//	emit(assign, newexpr_constbool(1), NULL, boolExprResult, 0);
-//	emit(jump, NULL, NULL, NULL, assignFalseLabel+1);
-//	emit(assign, newexpr_constbool(0), NULL, boolExprResult, 0);
-//	emit(if_eq, newexpr_constbool(1), boolExprResult, NULL, assignFalseLabel+3);
-//	emit(jump, NULL, NULL, NULL, 0); // TODO this jump needs to be backpatched after the stmt	
+	// My code below
+	Expr * boolExprResult = newexpr(var_e);
+	boolExprResult->sym = newtemp();
+		
+	printf("truelist: "); printIntStack(expr->truelist); //TODO delete
+	printf("falselist: "); printIntStack(expr->falselist); //TODO delete
+	
+	backpatch(expr->truelist,  nextquadlabel());
+	emit(assign, newexpr_constbool(1), NULL, boolExprResult, 0);	
+	emit(jump, NULL, NULL, NULL,nextquadlabel()+2);
+	
+	backpatch(expr->falselist, nextquadlabel());
+	emit(assign, newexpr_constbool(0), NULL, boolExprResult, 0);
+	
+	emit(if_eq, newexpr_constbool(1), boolExprResult, NULL, nextquadlabel()+2);
+	emit(jump, NULL, NULL, NULL, 0);
+	
+	return nextquadlabel()-1;
 }
 
 /********** elseprefix **********/
@@ -736,6 +740,7 @@ int manage_elseprefix_ELSE (){
 	printf("%d: elseprefix -> ELSE\n",yylineno);
 	int elseprefix = nextquadlabel();
 	emit(jump, NULL, NULL, NULL, 0);
+	return elseprefix;
 }
 
 /********** whilestmt **********/
